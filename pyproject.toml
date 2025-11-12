@@ -21,8 +21,13 @@ dependencies = [
 dev = [
   "pytest",
   "pytest-cov",
-  "hatchling",
   ]
+maintain =[
+  "twine",
+  "hatch-vcs",
+  "hatchling",
+  "build",
+]
 docs = [
   "mkdocs",
   "mkdocs-material",
