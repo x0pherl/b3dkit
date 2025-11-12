@@ -8,14 +8,19 @@ from pathlib import Path
 
 from build123d import BuildPart, Box, Part, Sphere, Align, Mode, Location
 
-from fb_library.click_fit import divot
+from b3dkit.click_fit import Divot
 
 
 class TestClickfit:
     def test_divot(self):
-        hole = divot(10, False)
+        hole = Divot(10, False)
         assert hole.is_valid
-        bump = divot(10, True)
+        bump = Divot(10, True)
+        assert bump.is_valid
+        assert hole.volume > bump.volume
+
+    def test_divot_extend_base(self):
+        bump = Divot(10, True, extend_base=True)
         assert bump.is_valid
 
     def test_direct_run(self):
@@ -28,5 +33,5 @@ class TestClickfit:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/fb_library/click_fit.py")
+            loader = SourceFileLoader("__main__", "src/b3dkit/click_fit.py")
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

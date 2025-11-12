@@ -2,12 +2,13 @@
 
 ## Overview
 
-The `bolt_fittings` module provides functions for creating various types of bolt holes, countersinks, and nut traps for 3D printed parts. These utilities help create properly sized cavities for hardware fasteners with considerations for 3D printing orientation and tolerances.
+The `bolt_fittings` module provides functions for creating various types of bolt holes, countersinks, and nut traps for connecting 3D printed parts. These utilities help create properly sized cavities for hardware fasteners with considerations for 3D printing orientation and tolerances.
 
-## Functions
+## Classes
 
-### teardrop_bolt_cut_sinkhole
+### TeardropBoltCutSinkhole
 
+Part Object: TeardropBoltCutSinkhole
 Creates a bolt hole with countersink using teardrop-shaped profiles for better vertical printing without support material.
 
 #### arguments
@@ -22,8 +23,9 @@ Creates a bolt hole with countersink using teardrop-shaped profiles for better v
 
 The teardrop shape uses the teardrop_ratio to determine the vertical extension (default 10% with ratio of 1.1) to accommodate printing without supports. The function creates a two-part geometry: a shaft section and a head countersink, with an optional extension for through-holes.
 
-### bolt_cut_sinkhole
+### BoltCutSinkhole
 
+Part Object: BoltCutSinkhole
 Creates a standard cylindrical bolt hole with countersink, suitable for all printing orientations.
 
 #### arguments
@@ -35,9 +37,9 @@ Creates a standard cylindrical bolt hole with countersink, suitable for all prin
  - chamfer_radius: the radius of the anti-chamfer at the top (default: 1mm)
  - extension_distance: how far to extend the shaft beyond the head for through-holes (default: 100mm)
 
-This function is a convenience wrapper around `teardrop_bolt_cut_sinkhole` with `teardrop_ratio=1.0`, which produces perfectly cylindrical profiles. Best for horizontal printing or when support material is acceptable.
+This function is a convenience wrapper around `TeardropBoltCutSinkhole` with `teardrop_ratio=1.0`, which produces perfectly cylindrical profiles. Best for horizontal printing or when support material is acceptable.
 
-### square_nut_sinkhole
+### BoltCutSinkhole
 
 Creates a bolt hole with a square nut trap cavity, allowing nuts to be inserted from the side during assembly.
 
@@ -56,7 +58,7 @@ The nut trap is oriented perpendicular to the bolt axis, allowing for side inser
 
 - Default values are sized for M3 bolts with appropriate printing tolerances
 - Teardrop versions use `teardrop_ratio` to control the vertical extension (default 1.1 = 10% extension)
-- Setting `teardrop_ratio=1.0` produces perfectly cylindrical holes (same as `bolt_cut_sinkhole`)
+- Setting `teardrop_ratio=1.0` produces perfectly cylindrical holes (same as `BoltCutSinkhole`)
 - The anti-chamfer at the top provides a smooth entry and prevents material buildup
 - Extension distance can be set to 0 for blind holes or large values for through-holes
 - All dimensions should account for your printer's tolerances (typically 0.1-0.2mm)
@@ -70,17 +72,17 @@ from build123d import (
     BuildPart,
     Location,
 )
-from fb_library.bolt_fittings import (
-    teardrop_bolt_cut_sinkhole,
-    bolt_cut_sinkhole,
-    square_nut_sinkhole,
+from b3dkit.bolt_fittings import (
+    TeardropBoltCutSinkhole,
+    BoltCutSinkhole,
+    BoltCutSinkhole,
 )
 
 # Create a part with a vertical teardrop bolt hole
 with BuildPart() as part1:
     Box(20, 20, 10, align=(Align.CENTER, Align.CENTER, Align.MIN))
     # Subtract a teardrop bolt hole for vertical printing
-    teardrop_bolt_cut_sinkhole(
+    TeardropBoltCutSinkhole(
         shaft_radius=1.65,
         shaft_depth=3,
         head_radius=3.1,
@@ -95,7 +97,7 @@ with BuildPart() as part1:
 with BuildPart() as part2:
     Box(20, 20, 10)
     # Standard cylindrical bolt hole
-    bolt_cut_sinkhole(
+    BoltCutSinkhole(
         shaft_radius=1.65,
         shaft_depth=8,
         head_radius=3.1,
@@ -110,7 +112,7 @@ with BuildPart() as part3:
     Box(30, 15, 10)
     # Position and subtract nut trap
     with Locations([(0, 0, 0)]):
-        square_nut_sinkhole(
+        BoltCutSinkhole(
             bolt_radius=1.65,
             bolt_depth=3,
             nut_height=2.1,
@@ -120,6 +122,76 @@ with BuildPart() as part3:
             mode=Mode.SUBTRACT
         )
 ```
+### heatsink_insert_cut
+
+```python
+heatsink_insert_cut(
+    head_radius: float = 3,
+    head_depth: float = 5,
+    shaft_radius: float = 2.1,
+    shaft_length: float = 20
+) -> Part
+```
+
+Creates a cutout template for a heatsink and bolt assembly.
+
+**Arguments:**
+- `head_radius` (float, default=3): Radius of the heatsink head
+- `head_depth` (float, default=5): Depth of the heatsink head cutout
+- `shaft_radius` (float, default=2.1): Radius of the bolt shaft
+- `shaft_length` (float, default=20): Length of the bolt shaft
+
+**Returns:**
+- `Part`: The heatsink cutout geometry
+
+### nut_cut
+
+```python
+nut_cut(
+    head_radius: float = 3,
+    head_depth: float = 5,
+    shaft_radius: float = 2.1,
+    shaft_length: float = 20
+) -> Part
+```
+
+Creates a cutout template for a hexagonal nut and bolt assembly.
+
+**Arguments:**
+- `head_radius` (float, default=3): Radius of the hexagonal nut
+- `head_depth` (float, default=5): Depth of the nut cutout
+- `shaft_radius` (float, default=2.1): Radius of the bolt shaft
+- `shaft_length` (float, default=20): Length of the bolt shaft
+
+**Returns:**
+- `Part`: The nut cutout geometry
+
+### screw_cut
+
+```python
+screw_cut(
+    head_radius: float = 4.5,
+    head_sink: float = 1.4,
+    shaft_radius: float = 2.25,
+    shaft_length: float = 20,
+    bottom_clearance: float = 20
+) -> Part
+```
+
+Creates a cutout template for a countersunk screw with tapered head transition.
+
+**Arguments:**
+- `head_radius` (float, default=4.5): Radius of the screw head (must be > shaft_radius)
+- `head_sink` (float, default=1.4): Depth of the countersunk head
+- `shaft_radius` (float, default=2.25): Radius of the screw shaft
+- `shaft_length` (float, default=20): Length of the screw shaft
+- `bottom_clearance` (float, default=20): Additional clearance below the head
+
+**Returns:**
+- `Part`: The screw cutout geometry
+
+**Raises:**
+- `ValueError`: If head_radius is not larger than shaft_radius
 
 ## Design Considerations
 

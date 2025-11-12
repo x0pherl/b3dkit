@@ -2,7 +2,9 @@
 
 ## Overview
 
-The `HexWall` function creates a hexagonal wall structure with specified dimensions and properties. This function is useful for generating hexagonal patterns in 3D models.
+Part Object: `HexWall`
+
+Create a box with a hexagonal cutout pattern defined by length, width, and height, apothem, and wall thickness. This Part is useful for generating hexagonal patterns in 3D models.
 
 ## Arguments
 
@@ -21,7 +23,7 @@ The `HexWall` function creates a hexagonal wall structure with specified dimensi
 ## Example
 
 ```python
-from fb_library.hexwall import HexWall
+from b3dkit import HexWall
 from build123d import Align
 
 # Create a hexagonal wall with specified dimensions and properties

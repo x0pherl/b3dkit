@@ -110,7 +110,7 @@ Divots provide tactile feedback and help position the lid. They can be disabled 
 
 ```python
 from build123d import *
-from fb_library.high_top_slide_box import high_top_slide_box
+from b3dkit.high_top_slide_box import high_top_slide_box
 
 # Create a base shape
 with BuildPart() as base_box:

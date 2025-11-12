@@ -9,6 +9,9 @@ These tests cover all functions and their parameters to ensure:
 - Mutation testing coverage
 """
 
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+from unittest.mock import patch
 import pytest
 from build123d import (
     Align,
@@ -16,39 +19,42 @@ from build123d import (
     BuildPart,
     Part,
 )
-from fb_library.bolt_fittings import (
-    teardrop_bolt_cut_sinkhole,
-    bolt_cut_sinkhole,
-    square_nut_sinkhole,
+from b3dkit.bolt_fittings import (
+    TeardropBoltCutSinkhole,
+    ScrewCut,
+    NutCut,
+    BoltCutSinkhole,
+    HeatsinkCut,
+    SquareNutSinkhole,
 )
 
 
 class TestTeardropBoltCutSinkhole:
     def test_teardrop_bolt_cut_default_parameters(self):
         """Test teardrop bolt cut with default parameters"""
-        result = teardrop_bolt_cut_sinkhole()
+        result = TeardropBoltCutSinkhole()
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_teardrop_bolt_cut_custom_shaft(self):
         """Test teardrop bolt cut with custom shaft dimensions"""
-        result = teardrop_bolt_cut_sinkhole(shaft_radius=2.0, shaft_depth=5.0)
+        result = TeardropBoltCutSinkhole(shaft_radius=2.0, shaft_depth=5.0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_teardrop_bolt_cut_custom_head(self):
         """Test teardrop bolt cut with custom head dimensions"""
-        result = teardrop_bolt_cut_sinkhole(head_radius=4.0, head_depth=3.0)
+        result = TeardropBoltCutSinkhole(head_radius=4.0, head_depth=3.0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_teardrop_bolt_cut_with_chamfer(self):
         """Test teardrop bolt cut with various chamfer radii"""
-        result1 = teardrop_bolt_cut_sinkhole(chamfer_radius=0.5)
-        result2 = teardrop_bolt_cut_sinkhole(chamfer_radius=2.0)
+        result1 = TeardropBoltCutSinkhole(chamfer_radius=0.5)
+        result2 = TeardropBoltCutSinkhole(chamfer_radius=2.0)
 
         assert isinstance(result1, Part)
         assert isinstance(result2, Part)
@@ -57,8 +63,8 @@ class TestTeardropBoltCutSinkhole:
 
     def test_teardrop_bolt_cut_with_extension(self):
         """Test teardrop bolt cut with extension distance"""
-        result_with = teardrop_bolt_cut_sinkhole(extension_distance=50)
-        result_without = teardrop_bolt_cut_sinkhole(extension_distance=0)
+        result_with = TeardropBoltCutSinkhole(extension_distance=50)
+        result_without = TeardropBoltCutSinkhole(extension_distance=0)
 
         assert isinstance(result_with, Part)
         assert isinstance(result_without, Part)
@@ -67,14 +73,14 @@ class TestTeardropBoltCutSinkhole:
 
     def test_teardrop_bolt_cut_zero_extension(self):
         """Test teardrop bolt cut with zero extension (blind hole)"""
-        result = teardrop_bolt_cut_sinkhole(extension_distance=0)
+        result = TeardropBoltCutSinkhole(extension_distance=0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_teardrop_bolt_cut_small_dimensions(self):
         """Test teardrop bolt cut with small dimensions"""
-        result = teardrop_bolt_cut_sinkhole(
+        result = TeardropBoltCutSinkhole(
             shaft_radius=0.5,
             shaft_depth=1.0,
             head_radius=1.0,
@@ -87,7 +93,7 @@ class TestTeardropBoltCutSinkhole:
 
     def test_teardrop_bolt_cut_large_dimensions(self):
         """Test teardrop bolt cut with large dimensions"""
-        result = teardrop_bolt_cut_sinkhole(
+        result = TeardropBoltCutSinkhole(
             shaft_radius=5.0,
             shaft_depth=10.0,
             head_radius=8.0,
@@ -100,7 +106,7 @@ class TestTeardropBoltCutSinkhole:
 
     def test_teardrop_bolt_cut_head_larger_than_shaft(self):
         """Test that head radius is larger than shaft radius"""
-        result = teardrop_bolt_cut_sinkhole(shaft_radius=1.5, head_radius=3.0)
+        result = TeardropBoltCutSinkhole(shaft_radius=1.5, head_radius=3.0)
 
         assert isinstance(result, Part)
         # Head should create additional volume beyond shaft
@@ -115,7 +121,7 @@ class TestTeardropBoltCutSinkhole:
         ]
 
         for shaft_r, shaft_d, head_r, head_d, chamfer_r, ext in combinations:
-            result = teardrop_bolt_cut_sinkhole(
+            result = TeardropBoltCutSinkhole(
                 shaft_radius=shaft_r,
                 shaft_depth=shaft_d,
                 head_radius=head_r,
@@ -128,9 +134,9 @@ class TestTeardropBoltCutSinkhole:
 
     def test_teardrop_bolt_cut_custom_teardrop_ratio(self):
         """Test teardrop bolt cut with custom teardrop_ratio"""
-        result1 = teardrop_bolt_cut_sinkhole(teardrop_ratio=1.0)  # Cylindrical
-        result2 = teardrop_bolt_cut_sinkhole(teardrop_ratio=1.1)  # Default teardrop
-        result3 = teardrop_bolt_cut_sinkhole(
+        result1 = TeardropBoltCutSinkhole(teardrop_ratio=1.0)  # Cylindrical
+        result2 = TeardropBoltCutSinkhole(teardrop_ratio=1.1)  # Default teardrop
+        result3 = TeardropBoltCutSinkhole(
             teardrop_ratio=1.2
         )  # More pronounced teardrop
 
@@ -141,7 +147,7 @@ class TestTeardropBoltCutSinkhole:
         assert result1.volume < result2.volume < result3.volume
 
     def test_teardrop_bolt_cut_ratio_1_0_equals_cylindrical(self):
-        """Test that teardrop_ratio=1.0 produces same result as bolt_cut_sinkhole"""
+        """Test that teardrop_ratio=1.0 produces same result as BoltCutSinkhole"""
         params = {
             "shaft_radius": 1.65,
             "shaft_depth": 2.0,
@@ -151,8 +157,8 @@ class TestTeardropBoltCutSinkhole:
             "extension_distance": 10.0,
         }
 
-        teardrop_result = teardrop_bolt_cut_sinkhole(**params, teardrop_ratio=1.0)
-        bolt_result = bolt_cut_sinkhole(**params)
+        teardrop_result = TeardropBoltCutSinkhole(**params, teardrop_ratio=1.0)
+        bolt_result = BoltCutSinkhole(**params)
 
         # Should have identical volumes
         assert abs(teardrop_result.volume - bolt_result.volume) < 1e-6
@@ -170,7 +176,7 @@ class TestTeardropBoltCutSinkhole:
 
         ratios = [1.0, 1.05, 1.1, 1.15, 1.2]
         results = [
-            teardrop_bolt_cut_sinkhole(**base_params, teardrop_ratio=r) for r in ratios
+            TeardropBoltCutSinkhole(**base_params, teardrop_ratio=r) for r in ratios
         ]
 
         # Each result should be valid
@@ -186,29 +192,29 @@ class TestTeardropBoltCutSinkhole:
 class TestBoltCutSinkhole:
     def test_bolt_cut_default_parameters(self):
         """Test bolt cut with default parameters"""
-        result = bolt_cut_sinkhole()
+        result = BoltCutSinkhole()
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_bolt_cut_custom_shaft(self):
         """Test bolt cut with custom shaft dimensions"""
-        result = bolt_cut_sinkhole(shaft_radius=2.0, shaft_depth=5.0)
+        result = BoltCutSinkhole(shaft_radius=2.0, shaft_depth=5.0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_bolt_cut_custom_head(self):
         """Test bolt cut with custom head dimensions"""
-        result = bolt_cut_sinkhole(head_radius=4.0, head_depth=3.0)
+        result = BoltCutSinkhole(head_radius=4.0, head_depth=3.0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_bolt_cut_with_chamfer(self):
         """Test bolt cut with various chamfer radii"""
-        result1 = bolt_cut_sinkhole(chamfer_radius=0.5)
-        result2 = bolt_cut_sinkhole(chamfer_radius=2.0)
+        result1 = BoltCutSinkhole(chamfer_radius=0.5)
+        result2 = BoltCutSinkhole(chamfer_radius=2.0)
 
         assert isinstance(result1, Part)
         assert isinstance(result2, Part)
@@ -217,8 +223,8 @@ class TestBoltCutSinkhole:
 
     def test_bolt_cut_with_extension(self):
         """Test bolt cut with extension distance"""
-        result_with = bolt_cut_sinkhole(extension_distance=50)
-        result_without = bolt_cut_sinkhole(extension_distance=0)
+        result_with = BoltCutSinkhole(extension_distance=50)
+        result_without = BoltCutSinkhole(extension_distance=0)
 
         assert isinstance(result_with, Part)
         assert isinstance(result_without, Part)
@@ -227,14 +233,14 @@ class TestBoltCutSinkhole:
 
     def test_bolt_cut_zero_extension(self):
         """Test bolt cut with zero extension (blind hole)"""
-        result = bolt_cut_sinkhole(extension_distance=0)
+        result = BoltCutSinkhole(extension_distance=0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_bolt_cut_small_dimensions(self):
         """Test bolt cut with small dimensions"""
-        result = bolt_cut_sinkhole(
+        result = BoltCutSinkhole(
             shaft_radius=0.5,
             shaft_depth=1.0,
             head_radius=1.0,
@@ -247,7 +253,7 @@ class TestBoltCutSinkhole:
 
     def test_bolt_cut_large_dimensions(self):
         """Test bolt cut with large dimensions"""
-        result = bolt_cut_sinkhole(
+        result = BoltCutSinkhole(
             shaft_radius=5.0,
             shaft_depth=10.0,
             head_radius=8.0,
@@ -259,7 +265,7 @@ class TestBoltCutSinkhole:
         assert result.volume > 0
 
     def test_bolt_cut_vs_teardrop(self):
-        """Test that bolt_cut and teardrop_bolt_cut with default ratio produce different results"""
+        """Test that bolt_cut and TeardropBoltCutSinkhole with default ratio produce different results"""
         params = {
             "shaft_radius": 1.65,
             "shaft_depth": 2.0,
@@ -269,8 +275,8 @@ class TestBoltCutSinkhole:
             "extension_distance": 10.0,
         }
 
-        bolt_result = bolt_cut_sinkhole(**params)
-        teardrop_result = teardrop_bolt_cut_sinkhole(
+        bolt_result = BoltCutSinkhole(**params)
+        teardrop_result = TeardropBoltCutSinkhole(
             **params
         )  # Uses default teardrop_ratio=1.1
 
@@ -280,7 +286,7 @@ class TestBoltCutSinkhole:
         assert teardrop_result.volume > bolt_result.volume
 
     def test_bolt_cut_is_wrapper_for_teardrop(self):
-        """Test that bolt_cut_sinkhole is a wrapper for teardrop with ratio=1.0"""
+        """Test that BoltCutSinkhole is a wrapper for TeardropBoltCutSinkhole with ratio=1.0"""
         params = {
             "shaft_radius": 2.0,
             "shaft_depth": 3.0,
@@ -290,8 +296,8 @@ class TestBoltCutSinkhole:
             "extension_distance": 20.0,
         }
 
-        bolt_result = bolt_cut_sinkhole(**params)
-        teardrop_result = teardrop_bolt_cut_sinkhole(**params, teardrop_ratio=1.0)
+        bolt_result = BoltCutSinkhole(**params)
+        teardrop_result = TeardropBoltCutSinkhole(**params, teardrop_ratio=1.0)
 
         # Should produce identical results
         assert isinstance(bolt_result, Part)
@@ -307,7 +313,7 @@ class TestBoltCutSinkhole:
         ]
 
         for shaft_r, shaft_d, head_r, head_d, chamfer_r, ext in combinations:
-            result = bolt_cut_sinkhole(
+            result = BoltCutSinkhole(
                 shaft_radius=shaft_r,
                 shaft_depth=shaft_d,
                 head_radius=head_r,
@@ -322,29 +328,29 @@ class TestBoltCutSinkhole:
 class TestSquareNutSinkhole:
     def test_square_nut_default_parameters(self):
         """Test square nut sinkhole with default parameters"""
-        result = square_nut_sinkhole()
+        result = SquareNutSinkhole()
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_square_nut_custom_bolt(self):
         """Test square nut sinkhole with custom bolt dimensions"""
-        result = square_nut_sinkhole(bolt_radius=2.0, bolt_depth=5.0)
+        result = SquareNutSinkhole(bolt_radius=2.0, bolt_depth=5.0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_square_nut_custom_nut(self):
         """Test square nut sinkhole with custom nut dimensions"""
-        result = square_nut_sinkhole(nut_height=3.0, nut_legnth=7.0, nut_depth=50.0)
+        result = SquareNutSinkhole(nut_height=3.0, nut_legnth=7.0, nut_depth=50.0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_square_nut_with_extension(self):
         """Test square nut sinkhole with bolt extension"""
-        result_with = square_nut_sinkhole(bolt_extension=5)
-        result_without = square_nut_sinkhole(bolt_extension=0)
+        result_with = SquareNutSinkhole(bolt_extension=5)
+        result_without = SquareNutSinkhole(bolt_extension=0)
 
         assert isinstance(result_with, Part)
         assert isinstance(result_without, Part)
@@ -353,14 +359,14 @@ class TestSquareNutSinkhole:
 
     def test_square_nut_zero_extension(self):
         """Test square nut sinkhole with zero extension"""
-        result = square_nut_sinkhole(bolt_extension=0)
+        result = SquareNutSinkhole(bolt_extension=0)
 
         assert isinstance(result, Part)
         assert result.volume > 0
 
     def test_square_nut_small_dimensions(self):
         """Test square nut sinkhole with small dimensions"""
-        result = square_nut_sinkhole(
+        result = SquareNutSinkhole(
             bolt_radius=0.5,
             bolt_depth=1.0,
             nut_height=1.0,
@@ -374,7 +380,7 @@ class TestSquareNutSinkhole:
 
     def test_square_nut_large_dimensions(self):
         """Test square nut sinkhole with large dimensions"""
-        result = square_nut_sinkhole(
+        result = SquareNutSinkhole(
             bolt_radius=5.0,
             bolt_depth=10.0,
             nut_height=5.0,
@@ -388,7 +394,7 @@ class TestSquareNutSinkhole:
 
     def test_square_nut_nut_larger_than_bolt(self):
         """Test that nut dimensions are larger than bolt"""
-        result = square_nut_sinkhole(bolt_radius=1.5, nut_legnth=6.0)
+        result = SquareNutSinkhole(bolt_radius=1.5, nut_legnth=6.0)
 
         assert isinstance(result, Part)
         # Nut trap should add significant volume
@@ -396,8 +402,8 @@ class TestSquareNutSinkhole:
 
     def test_square_nut_different_nut_sizes(self):
         """Test with different nut sizes"""
-        small_nut = square_nut_sinkhole(nut_legnth=4.0, nut_height=1.5)
-        large_nut = square_nut_sinkhole(nut_legnth=8.0, nut_height=3.0)
+        small_nut = SquareNutSinkhole(nut_legnth=4.0, nut_height=1.5)
+        large_nut = SquareNutSinkhole(nut_legnth=8.0, nut_height=3.0)
 
         assert isinstance(small_nut, Part)
         assert isinstance(large_nut, Part)
@@ -413,7 +419,7 @@ class TestSquareNutSinkhole:
         ]
 
         for bolt_r, bolt_d, nut_h, nut_l, nut_d, bolt_ext in combinations:
-            result = square_nut_sinkhole(
+            result = SquareNutSinkhole(
                 bolt_radius=bolt_r,
                 bolt_depth=bolt_d,
                 nut_height=nut_h,
@@ -426,7 +432,7 @@ class TestSquareNutSinkhole:
 
     def test_square_nut_geometry_structure(self):
         """Test that square nut creates the expected geometry structure"""
-        result = square_nut_sinkhole(
+        result = SquareNutSinkhole(
             bolt_radius=1.65,
             bolt_depth=2.0,
             nut_height=2.1,
@@ -447,9 +453,9 @@ class TestSquareNutSinkhole:
 class TestBoltFittingsIntegration:
     def test_all_functions_return_parts(self):
         """Test that all functions return valid Part objects"""
-        teardrop = teardrop_bolt_cut_sinkhole()
-        bolt = bolt_cut_sinkhole()
-        square = square_nut_sinkhole()
+        teardrop = TeardropBoltCutSinkhole()
+        bolt = BoltCutSinkhole()
+        square = BoltCutSinkhole()
 
         assert isinstance(teardrop, Part)
         assert isinstance(bolt, Part)
@@ -466,8 +472,8 @@ class TestBoltFittingsIntegration:
             "extension_distance": 0,
         }
 
-        teardrop = teardrop_bolt_cut_sinkhole(**params)  # Default ratio=1.1
-        bolt = bolt_cut_sinkhole(**params)  # Equivalent to ratio=1.0
+        teardrop = TeardropBoltCutSinkhole(**params)  # Default ratio=1.1
+        bolt = BoltCutSinkhole(**params)  # Equivalent to ratio=1.0
 
         # Teardrop with default 1.1 ratio should be slightly larger than cylindrical
         ratio = teardrop.volume / bolt.volume
@@ -485,17 +491,48 @@ class TestBoltFittingsIntegration:
         }
 
         # Test that changing only teardrop_ratio changes volume
-        result_low = teardrop_bolt_cut_sinkhole(**params, teardrop_ratio=1.05)
-        result_mid = teardrop_bolt_cut_sinkhole(**params, teardrop_ratio=1.1)
-        result_high = teardrop_bolt_cut_sinkhole(**params, teardrop_ratio=1.15)
+        result_low = TeardropBoltCutSinkhole(**params, teardrop_ratio=1.05)
+        result_mid = TeardropBoltCutSinkhole(**params, teardrop_ratio=1.1)
+        result_high = TeardropBoltCutSinkhole(**params, teardrop_ratio=1.15)
 
         # Volumes should increase with ratio
         assert result_low.volume < result_mid.volume < result_high.volume
 
     def test_volume_increases_with_dimensions(self):
         """Test that increasing dimensions increases volume"""
-        small = bolt_cut_sinkhole(shaft_radius=1.0, head_radius=2.0)
-        medium = bolt_cut_sinkhole(shaft_radius=2.0, head_radius=3.0)
-        large = bolt_cut_sinkhole(shaft_radius=3.0, head_radius=4.0)
+        small = BoltCutSinkhole(shaft_radius=1.0, head_radius=2.0)
+        medium = BoltCutSinkhole(shaft_radius=2.0, head_radius=3.0)
+        large = BoltCutSinkhole(shaft_radius=3.0, head_radius=4.0)
 
         assert small.volume < medium.volume < large.volume
+
+
+class TestScrewCut:
+    def test_screw_cut(self):
+        screw = ScrewCut(5, 1, 2, 10, 10)
+        assert screw.is_valid
+        assert screw.bounding_box().size.X == pytest.approx(10)
+        assert screw.bounding_box().size.Y == pytest.approx(10)
+        assert screw.bounding_box().size.Z == pytest.approx(20)
+
+    def test_nut_cut(self):
+        nut = NutCut(5, 1, 2, 10)
+        assert nut.is_valid
+
+    def test_invalid_screw_cut(self):
+        with pytest.raises(ValueError):
+            ScrewCut(head_radius=5, shaft_radius=6)
+
+    def test_heatsink_cut(self):
+        heatsink = HeatsinkCut(10, 1, 5, 10)
+        assert heatsink.is_valid
+        assert heatsink.bounding_box().size.X == pytest.approx(20)
+        assert heatsink.bounding_box().size.Y == pytest.approx(20)
+        assert heatsink.bounding_box().size.Z == pytest.approx(11)
+
+
+class TestBareExecution:
+    def test_bare_execution(self):
+        with (patch("ocp_vscode.show"),):
+            loader = SourceFileLoader("__main__", "src/b3dkit/bolt_fittings.py")
+            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

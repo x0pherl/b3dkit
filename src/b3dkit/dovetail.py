@@ -27,20 +27,20 @@ from build123d import (
 )
 
 # it's a bad habit, but I keep some simple test code under __main__
-# to make creating test object easy -- this adds ".fb_library" to the path
+# to make creating test object easy -- this adds ".b3dkit" to the path
 if __name__ == "__main__":
     import sys, os
 
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-from fb_library.point import (
+from b3dkit.point import (
     Point,
     midpoint,
     shifted_midpoint,
 )
 
-from fb_library.click_fit import divot
+from b3dkit.click_fit import Divot
 
 
 class DovetailPart(Enum):
@@ -516,7 +516,7 @@ def traditional_subpart_divots(
             mode=topmode,
         ):
             add(
-                divot(
+                Divot(
                     click_fit_radius,
                     positive=topmode == Mode.ADD,
                     extend_base=True,
@@ -550,7 +550,7 @@ def traditional_subpart_divots(
             mode=bottommode,
         ):
             add(
-                divot(
+                Divot(
                     click_fit_radius,
                     positive=bottommode == Mode.ADD,
                     extend_base=True,
@@ -566,7 +566,7 @@ def traditional_subpart_divots(
             mode=bottommode,
         ):
             add(
-                divot(click_fit_radius, positive=True, extend_base=True)
+                Divot(click_fit_radius, positive=True, extend_base=True)
                 .rotate(
                     Axis.X,
                     (90 * (1 if vertical_offset < 0 else -1)) + scarf_angle,
@@ -609,13 +609,11 @@ def snugtail_divots(
             mode=Mode.SUBTRACT if section == DovetailPart.SOCKET else Mode.ADD,
         ):
             with PolarLocations(inner_width / 2, 2, start_angle=cut_angle):
-                add(
-                    divot(
-                        radius=click_fit_radius,
-                        positive=True,
-                        extend_base=True,
-                    ).rotate(Axis.Y, -90)
-                )
+                Divot(
+                    radius=click_fit_radius,
+                    positive=True,
+                    extend_base=True,
+                ).rotate(Axis.Y, -90)
     return divotedpart.part
 
 

@@ -37,7 +37,7 @@ The `dovetail_subpart` function takes a build123d part and necessary parameters 
 ## Example
 
 ```python
-from fb_library import dovetail_subpart, Point, DovetailPart
+from b3dkit import dovetail_subpart, Point, DovetailPart
 
 # Define the subpart, start and end points
 with BuildPart(mode=Mode.PRIVATE) as longbox:

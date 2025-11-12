@@ -5,7 +5,7 @@ import pytest
 sys.path.insert(
     0,
     os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../src/fb_library")
+        os.path.join(os.path.dirname(__file__), "../src/b3dkit")
     ),
 )
 sys.path.insert(

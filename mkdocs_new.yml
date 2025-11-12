@@ -1,5 +1,5 @@
-site_name: fb-library
-site_url: https://fb-library.readthedocs.io/
+site_name: b3dkit
+site_url: https://b3dkit.readthedocs.io/
 theme:
   name: material
   features:

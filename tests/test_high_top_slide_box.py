@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 from build123d import Box, BuildPart, Part, Align, Axis, fillet, Compound
 
-from fb_library.high_top_slide_box import (
+from b3dkit.high_top_slide_box import (
     high_top_slide_box,
     high_top_slide_box_lid,
     high_top_slide_box_base,
@@ -276,7 +276,7 @@ class TestHighTopSlideBox:
             ),
         ):
             loader = SourceFileLoader(
-                "__main__", "src/fb_library/high_top_slide_box.py"
+                "__main__", "src/b3dkit/high_top_slide_box.py"
             )
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 

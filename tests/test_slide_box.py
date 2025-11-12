@@ -8,7 +8,7 @@ from pathlib import Path
 
 from build123d import Axis, BuildPart, Box, Align, fillet
 
-from fb_library.slide_box import slide_box
+from b3dkit.slide_box import slide_box
 
 
 class TestSlideBox:
@@ -33,5 +33,5 @@ class TestSlideBox:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/fb_library/slide_box.py")
+            loader = SourceFileLoader("__main__", "src/b3dkit/slide_box.py")
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

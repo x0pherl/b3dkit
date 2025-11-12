@@ -2,7 +2,7 @@
 setlocal
 
 
-SET PROJECT_NAME=fb-library
+SET PROJECT_NAME=b3dkit
 
 SET /P PYTEST_CHOSEN=Do you want to run pytest --cov ([Y]/N)?
 IF /I "%PYTEST_CHOSEN%" NEQ "N" GOTO TEST
@@ -24,7 +24,7 @@ py -m build
 py -m pip install -e .
 
 :TESTLOCAL
-python -c "exec(\"from fb_library import dovetail_subpart, click_fit, Point, shifted_midpoint\nprint(shifted_midpoint(Point(0,0), Point(10,10),0))\")"
+python -c "exec(\"from b3dkit import dovetail_subpart, click_fit, Point, shifted_midpoint\nprint(shifted_midpoint(Point(0,0), Point(10,10),0))\")"
 
 
 SET /P PYPI_UPLOAD=Based on that simple test, upload to pypi? ([Y]/N)?
@@ -34,9 +34,9 @@ GOTO END
 
 :UPLOAD
 py -m twine upload dist/*
-py -m pip uninstall -y fb-library
-py -m pip install fb-library
-python -c "exec(\"from fb_library import dovetail_subpart, click_fit, Point, shifted_midpoint\nprint(shifted_midpoint(Point(0,0), Point(10,10),0))\")"
+py -m pip uninstall -y b3dkit
+py -m pip install b3dkit
+python -c "exec(\"from b3dkit import dovetail_subpart, click_fit, Point, shifted_midpoint\nprint(shifted_midpoint(Point(0,0), Point(10,10),0))\")"
 
 ECHO "REMINDER!!! Commit and push git changes!!!"
 

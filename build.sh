@@ -2,9 +2,9 @@
 
 set -e
 
-PROJECT_NAME="fb-library"
+PROJECT_NAME="b3dkit"
 # Define the test command as a variable
-TEST_CMD="from fb_library import divot; print(f'Divot test valid?: {divot().is_valid}')"
+TEST_CMD="from b3dkit import Divot; print(f'Divot test valid?: {Divot().is_valid}')"
 # Define sleep time for PyPI availability
 PYPI_WAIT_TIME=30
 

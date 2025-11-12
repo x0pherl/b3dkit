@@ -1,6 +1,6 @@
 [project]
-name = "fb-library"
-version = "0.0.39"
+name = "b3dkit"
+version = "0.1.0"
 authors = [
   { name="x0pherl"},
 ]
@@ -12,16 +12,35 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+  "build123d>=0.0.1",
+  "ocp_vscode",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "hatchling",
+  ]
+docs = [
+  "mkdocs",
+  "mkdocs-material",
+  "markdown-include",
+]
 
 [project.urls]
-Homepage = "https://github.com/x0pherl/fb-library"
-Issues = "https://github.com/x0pherl/fb-library/issues"
-Documentation = "https://fb-library.readthedocs.org"
+Homepage = "https://github.com/x0pherl/b3dkit"
+Issues = "https://github.com/x0pherl/b3dkit/issues"
+Documentation = "https://b3dkit.readthedocs.org"
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+exclude = [".venv-1"]
 
 [tool.pytest.ini_options]
 markers = [

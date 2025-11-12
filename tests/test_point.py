@@ -3,7 +3,7 @@ from importlib.util import module_from_spec, spec_from_loader
 import pytest
 from math import radians, tan
 from build123d import Axis
-from fb_library.point import Point, midpoint, shifted_midpoint
+from b3dkit.point import Point, midpoint, shifted_midpoint
 
 
 class TestPoint:

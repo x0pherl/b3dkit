@@ -9,9 +9,9 @@ from pathlib import Path
 
 from build123d import BuildPart, Box, Part, Sphere, Align, Mode, Location, add
 
-from fb_library.point import Point
+from b3dkit.point import Point
 
-from fb_library.dovetail import (
+from b3dkit.dovetail import (
     DovetailPart,
     DovetailStyle,
     dovetail_split_line,
@@ -32,7 +32,7 @@ class TestDovetail:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/fb_library/dovetail.py")
+            loader = SourceFileLoader("__main__", "src/b3dkit/dovetail.py")
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
     def test_start_end_match(self):

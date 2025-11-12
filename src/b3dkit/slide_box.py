@@ -23,7 +23,7 @@ from build123d import (
 
 
 from ocp_vscode import show, Camera
-from fb_library import divot
+from b3dkit import Divot
 
 
 def slider_template(
@@ -75,12 +75,10 @@ def slider_template(
                     2,
                     1,
                 ):
-                    add(
-                        divot(
-                            radius=divot_radius,
-                            positive=(not cut_template),
-                            extend_base=True,
-                        )
+                    Divot(
+                        radius=divot_radius,
+                        positive=(not cut_template),
+                        extend_base=True,
                     )
 
     return slider_part.part

@@ -19,7 +19,13 @@ from build123d import (
     pack,
 )
 from dataclasses import field
-from fb_library import diamond_cylinder, divot, Point, opposite_length, midpoint
+from b3dkit.point import Point, midpoint
+from b3dkit.basic_shapes import (
+    DiamondCylinder,
+    opposite_length,
+)
+from b3dkit.click_fit import Divot
+
 from ocp_vscode import show, Camera
 
 
@@ -93,13 +99,11 @@ def _slide_top_rail_cut(
             ),
             mode=Mode.ADD,
         ):
-            add(
-                diamond_cylinder(
-                    radius=wall_thickness - effective_tolerance / 2,
-                    height=part_depth - wall_thickness,
-                    align=(Align.MAX, Align.CENTER, Align.MIN),
-                    rotation=(90, 0, -rail_angle),
-                )
+            DiamondCylinder(
+                radius=wall_thickness - effective_tolerance / 2,
+                height=part_depth - wall_thickness,
+                align=(Align.MAX, Align.CENTER, Align.MIN),
+                rotation=(90, 0, -rail_angle),
             )
         with BuildPart(
             (
@@ -113,13 +117,11 @@ def _slide_top_rail_cut(
             ),
             mode=Mode.ADD,
         ):
-            add(
-                diamond_cylinder(
-                    radius=wall_thickness - effective_tolerance / 2,
-                    height=part_depth - wall_thickness,
-                    align=(Align.MIN, Align.CENTER, Align.MIN),
-                    rotation=(90, 0, rail_angle),
-                )
+            DiamondCylinder(
+                radius=wall_thickness - effective_tolerance / 2,
+                height=part_depth - wall_thickness,
+                align=(Align.MIN, Align.CENTER, Align.MIN),
+                rotation=(90, 0, rail_angle),
             )
 
         with BuildPart(
@@ -134,13 +136,11 @@ def _slide_top_rail_cut(
             ),
             mode=Mode.SUBTRACT,
         ):
-            add(
-                diamond_cylinder(
-                    radius=guide_radius,
-                    height=part_depth,
-                    align=(Align.CENTER, Align.CENTER, Align.MIN),
-                    rotation=(90, 0, -rail_angle),
-                )
+            DiamondCylinder(
+                radius=guide_radius,
+                height=part_depth,
+                align=(Align.CENTER, Align.CENTER, Align.MIN),
+                rotation=(90, 0, -rail_angle),
             )
         with BuildPart(
             (
@@ -154,14 +154,13 @@ def _slide_top_rail_cut(
             ),
             mode=Mode.SUBTRACT,
         ):
-            add(
-                diamond_cylinder(
-                    radius=guide_radius,
-                    height=part_depth,
-                    align=(Align.CENTER, Align.CENTER, Align.MIN),
-                    rotation=(90, 0, rail_angle),
-                )
+            DiamondCylinder(
+                radius=guide_radius,
+                height=part_depth,
+                align=(Align.CENTER, Align.CENTER, Align.MIN),
+                rotation=(90, 0, rail_angle),
             )
+
     return rail_cut.part
 
 
@@ -254,13 +253,12 @@ def _high_top_slide_box_top(
                 ),
             ):
                 with PolarLocations(radius=part_width / 3 - wall_thickness, count=2):
-                    add(
-                        divot(
-                            radius=divot_radius,
-                            positive=not cut_template,
-                            extend_base=True,
-                        )
+                    Divot(
+                        radius=divot_radius,
+                        positive=not cut_template,
+                        extend_base=True,
                     )
+
             with BuildPart(
                 Location(
                     (0, (-part_depth + wall_thickness) / 2, 0),
@@ -268,12 +266,10 @@ def _high_top_slide_box_top(
                 ),
             ):
                 with PolarLocations(radius=part_width / 3 - wall_thickness, count=2):
-                    add(
-                        divot(
-                            radius=divot_radius,
-                            positive=not cut_template,
-                            extend_base=True,
-                        )
+                    Divot(
+                        radius=divot_radius,
+                        positive=not cut_template,
+                        extend_base=True,
                     )
     top.part.label = "lid"
     return top.part
@@ -414,12 +410,10 @@ def high_top_slide_box_base(
             mode=Mode.SUBTRACT,
         ):
             with GridLocations(part_width, 0, 2, 1) as grid_locs:
-                add(
-                    diamond_cylinder(
-                        radius=wall_thickness,
-                        height=part_height * 2,
-                        align=(Align.CENTER, Align.CENTER, Align.MIN),
-                    )
+                DiamondCylinder(
+                    radius=wall_thickness,
+                    height=part_height * 2,
+                    align=(Align.CENTER, Align.CENTER, Align.MIN),
                 )
 
     boxbottom.part.label = "box bottom"

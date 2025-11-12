@@ -1,3 +1,0 @@
-build123d>=0.10.0
-pytest
-ocp_vscode

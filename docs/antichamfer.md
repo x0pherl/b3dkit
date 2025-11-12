@@ -10,10 +10,9 @@ The `antichamfer` module provides functionality to create anti-chamfers. An anti
 
 #### arguments
 
- - part: the Part object to apply the anti-chamfer to
- - faces: the face or faces to apply the anti-chamfer to (can be a single Face or an iterable of Faces)
  - length: the depth of the anti-chamfer (how far to offset inward from the original face)
  - length2: the width of the taper at the bottom (optional, defaults to length if not specified)
+ - face: the face or faces to apply the anti-chamfer to (can be a single Face or an iterable of Faces)
 
 The function creates a tapered extrusion that extends outward from the specified faces. The taper angle is calculated based on the ratio of length2 to length, creating different bevel profiles depending on these values.
 
@@ -34,7 +33,7 @@ from build123d import (
     Location,
     fillet,
 )
-from fb_library.antichamfer import anti_chamfer
+from b3dkit.antichamfer import anti_chamfer
 
 # Create a basic box
 with BuildPart() as base_part:
@@ -42,10 +41,10 @@ with BuildPart() as base_part:
 
 # Apply anti-chamfer to the top face with equal length values (45-degree bevel)
 result = anti_chamfer(
-    base_part.part,
     base_part.faces().filter_by(Axis.Z)[-1],  # top face
-    length=2.0,
-    length2=2.0
+    2.0,  # length
+    2.0,  # length2
+    
 )
 
 # Apply anti-chamfer to multiple faces with different taper
@@ -55,12 +54,11 @@ with BuildPart() as complex_part:
 
 # Anti-chamfer on top and bottom faces with steeper taper
 anti_chamfered = anti_chamfer(
-    complex_part.part,
     [
         complex_part.faces().filter_by(Axis.Z)[-1],  # top
         complex_part.faces().filter_by(Axis.Z)[0]    # bottom
     ],
-    length=1.5,
-    length2=0.8  # Creates steeper angle
+    1.5,   # length
+    0.8,   # length2 - Creates steeper angle
 )
 ```

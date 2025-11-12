@@ -8,12 +8,12 @@ The `Point` module provides a set of functions and methods to work with 2D point
 
 The `Point` class Represents a point in 2D space. Instantiating a point is as simple as:
 ```
-from fb_library import Point
+from b3dkit import Point
 Point(1,3)
 ```
 or it can be instantiated with a list:
 ```
-from fb_library import Point
+from b3dkit import Point
 Point([1,3])
 ```
 Once you've defined a point, you can access the x or y values through a variety of means:
@@ -60,7 +60,7 @@ p[1] # returns the y coordinate (3)
   - **Note:** This method requires importing `Axis` from `build123d`
     ```
     from build123d import Axis
-    from fb_library import Point
+    from b3dkit import Point
     
     # Move 5 units along X-axis at 30 degrees
     Point(0,0).related_point_by_axis(30, 5, Axis.X)
@@ -80,7 +80,7 @@ p[1] # returns the y coordinate (3)
 - `midpoint(point1: Point, point2: Point) -> Point`
   - Finds the midpoint between two points.
     ```
-    from fb_library.point import midpoint
+    from b3dkit.point import midpoint
     midpoint(Point(0,0), Point(10,10))
     # returns Point(x=5.0, y=5.0)
     ```
@@ -89,7 +89,7 @@ p[1] # returns the y coordinate (3)
   - Finds the midpoint between two points, shifted by `shift` towards the second point.
   This can be useful when you need to make something slightly off center between two arbitrary points, or when adding points at regular midpoints of a line
     ```
-    from fb_library.point import shifted_midpoint
+    from b3dkit.point import shifted_midpoint
     shifted_midpoint(Point(0,0), Point(3,3), 1)
     # returns Point(x=2.2071067811865475, y=2.2071067811865475)
     ```

@@ -12,5 +12,6 @@
         "kwargs",
         "partomate",
         "partomatic"
-    ]
+    ],
+    "python-envs.pythonProjects": []
 }

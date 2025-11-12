@@ -135,7 +135,7 @@ Use `x_straighten_distance` when:
 
 ```python
 from build123d import *
-from fb_library.slide_box import slide_box
+from b3dkit.slide_box import slide_box
 
 # Create a base shape
 with BuildPart() as base_box:
