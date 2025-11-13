@@ -85,12 +85,12 @@ class TeardropBoltCutSinkhole(BasePartObject):
                     sinkhole.faces().sort_by(Axis.Z)[-1],
                     amount=extension_distance,
                 )
-        final_template = anti_chamfer(
-            sinkhole.part.faces().sort_by(Axis.Z)[-1],
-            chamfer_radius,
-        )
+            anti_chamfer(
+                sinkhole.part.faces().sort_by(Axis.Z)[-1],
+                chamfer_radius,
+            )
         super().__init__(
-            part=final_template,
+            part=sinkhole.part,
             rotation=rotation,
             align=tuplify(align, 3),
             mode=mode,

@@ -1,5 +1,6 @@
 from b3dkit.basic_shapes import *
 from b3dkit.ball_socket import *
+from b3dkit.bolt_fittings import *
 from b3dkit.click_fit import *
 from b3dkit.dovetail import *
 from b3dkit.hexwall import *
