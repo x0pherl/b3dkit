@@ -14,7 +14,6 @@ from b3dkit.point import Point
 from b3dkit.dovetail import (
     DovetailPart,
     DovetailStyle,
-    dovetail_split_line,
     dovetail_subpart,
     snugtail_subpart_outline,
     dovetail_subpart_outline,
@@ -44,10 +43,6 @@ class TestDovetail:
                     test.part,
                     Point(5, 0),
                     Point(5, 0),
-                    # scarf_distance=0.5,
-                    section=DovetailPart.TAIL,
-                    # tilt=20,
-                    vertical_offset=-100,
                 ),
             )
 
@@ -60,9 +55,7 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    # scarf_distance=0.5,
                     section=DovetailPart.TAIL,
-                    # tilt=20,
                     vertical_offset=100,
                 ),
             )
@@ -76,9 +69,7 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    # scarf_distance=0.5,
                     section=DovetailPart.TAIL,
-                    # tilt=20,
                     vertical_offset=-100,
                 ),
             )
@@ -92,10 +83,8 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    # scarf_distance=0.5,
                     section=DovetailPart.TAIL,
                     style=DovetailStyle.TRADITIONAL,
-                    # tilt=20,
                     vertical_offset=0.5,
                     click_fit_radius=0.5,
                 ),
@@ -173,10 +162,8 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    # scarf_distance=0.5,
                     section=DovetailPart.TAIL,
                     style=DovetailStyle.SNUGTAIL,
-                    # tilt=20,
                     vertical_offset=0.5,
                     click_fit_radius=1,
                 ),
@@ -226,7 +213,6 @@ class TestDovetail:
                     Point(5, 0),
                     taper_angle=-1,
                     section=DovetailPart.TAIL,
-                    # tilt=20,
                     vertical_offset=-0.5,
                 ),
             )
@@ -238,7 +224,6 @@ class TestDovetail:
                     Point(5, 0),
                     taper_angle=0.5,
                     section=DovetailPart.TAIL,
-                    # tilt=20,
                     vertical_offset=0.5,
                 ),
             )
