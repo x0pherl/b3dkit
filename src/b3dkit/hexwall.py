@@ -90,10 +90,10 @@ class HexWall(BasePartObject):
 if __name__ == "__main__":
     show(
         HexWall(
-            width=200,
-            length=400,
+            width=20,
+            length=40,
             height=2,
-            apothem=10,
+            apothem=9,
             wall_thickness=2,
             inverse=True,
             align=(Align.CENTER, Align.CENTER, Align.MIN),

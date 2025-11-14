@@ -11,7 +11,7 @@ from build123d import BuildPart, Box, Part, Sphere, Align, Mode, Location
 from b3dkit.hexwall import HexWall
 
 
-class TestClickfit:
+class TestHexWall:
     def test_hexwall(self):
         pattern = HexWall(10, 10, 1, 1, 0.2)
         assert pattern.is_valid
