@@ -132,7 +132,7 @@ class BoltCutSinkhole(BasePartObject):
             - mode: the mode to use when adding the sinkhole
         Returns:
             - Part: A cylindrical bolt hole part with countersink"""
-        TeardropBoltCutSinkhole(
+        sinkhole = TeardropBoltCutSinkhole(
             shaft_radius=shaft_radius,
             shaft_depth=shaft_depth,
             head_radius=head_radius,
@@ -140,6 +140,13 @@ class BoltCutSinkhole(BasePartObject):
             chamfer_radius=chamfer_radius,
             extension_distance=extension_distance,
             teardrop_ratio=1.0,
+            rotation=rotation,
+            align=tuplify(align, 3),
+            mode=mode,
+        )
+
+        super().__init__(
+            part=sinkhole,
             rotation=rotation,
             align=tuplify(align, 3),
             mode=mode,
