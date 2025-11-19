@@ -7,6 +7,7 @@ from build123d import (
     BuildSketch,
     Circle,
     Cylinder,
+    GridLocations,
     Location,
     Mode,
     Part,
@@ -80,7 +81,6 @@ class TeardropBoltCutSinkhole(BasePartObject):
                 align=(Align.CENTER, Align.CENTER, Align.MIN),
             ),
             if extension_distance > 0:
-                # extrude(sinkhole.faces().sort_by(Axis.Z)[0], amount=extension_distance)
                 extrude(
                     sinkhole.faces().sort_by(Axis.Z)[-1],
                     amount=extension_distance,
@@ -97,7 +97,7 @@ class TeardropBoltCutSinkhole(BasePartObject):
         )
 
 
-class BoltCutSinkhole(BasePartObject):
+class BoltCutSinkhole(TeardropBoltCutSinkhole):
 
     def __init__(
         self,
@@ -132,7 +132,8 @@ class BoltCutSinkhole(BasePartObject):
             - mode: the mode to use when adding the sinkhole
         Returns:
             - Part: A cylindrical bolt hole part with countersink"""
-        sinkhole = TeardropBoltCutSinkhole(
+
+        super().__init__(
             shaft_radius=shaft_radius,
             shaft_depth=shaft_depth,
             head_radius=head_radius,
@@ -140,13 +141,6 @@ class BoltCutSinkhole(BasePartObject):
             chamfer_radius=chamfer_radius,
             extension_distance=extension_distance,
             teardrop_ratio=1.0,
-            rotation=rotation,
-            align=tuplify(align, 3),
-            mode=mode,
-        )
-
-        super().__init__(
-            part=sinkhole,
             rotation=rotation,
             align=tuplify(align, 3),
             mode=mode,
@@ -359,5 +353,6 @@ class HeatsinkCut(BasePartObject):
 if __name__ == "__main__":
     with BuildPart() as tst:
         Box(20, 20, 20)
-        BoltCutSinkhole(mode=Mode.SUBTRACT)
+        with GridLocations(10, 10, 2, 2):
+            BoltCutSinkhole(mode=Mode.SUBTRACT)
     show(tst.part, reset_camera=Camera.KEEP)
