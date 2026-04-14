@@ -25,6 +25,7 @@ from build123d import (
     JernArc,
     Line,
     Location,
+    Locations,
     Mode,
     Part,
     Plane,
@@ -127,7 +128,7 @@ def circular_intersection(radius: float, coordinate: float) -> float:
         - coordinate: a coordinate along one axis of the circle (must be a
             positive value less than the radius)
     """
-    if 0 > coordinate > radius:
+    if not (0 <= coordinate <= radius):
         raise ValueError("The x-coordinate cannot be greater than the radius.")
     return sqrt(radius**2 - coordinate**2)
 
@@ -218,6 +219,7 @@ class PolygonalCylinder(BasePartObject):
         radius: float,
         height: float,
         side_count: int = 6,
+        arc_size: float = 360,
         stretch: tuple = (1, 1, 1),
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
@@ -230,6 +232,7 @@ class PolygonalCylinder(BasePartObject):
             - radius: the radius of the cylinder
             - height: the height of the cylinder
             - side_count: the number of sides of the polygonal base (default is 6)
+            - arc_size: (float, optional) – angular size of cone. Defaults to 360.
             - stretch: scales the base polygon
             - rotation: the rotation of the cylinder
             - align: the alignment of the cylinder
@@ -239,14 +242,21 @@ class PolygonalCylinder(BasePartObject):
         validate_inputs(context, self)
 
         with BuildPart() as tube:
-            with BuildSketch():
+            with BuildSketch() as poly:
                 RegularPolygon(
                     radius=radius, side_count=side_count, align=tuplify(align, 2)
                 )
+                center = poly.sketch.face().center()
+                with Locations((center.X, center.Y)):
+                    Circle(
+                        radius=radius,
+                        arc_size=arc_size,
+                        align=None,
+                        mode=Mode.INTERSECT,
+                    ),
             extrude(amount=height * stretch[2])
-        super().__init__(
-            part=tube.part, rotation=rotation, align=tuplify(align, 3), mode=mode
-        )
+            scale(tube.part, by=(stretch[0], stretch[1], 1))
+        super().__init__(part=tube.part, rotation=rotation, align=align, mode=mode)
 
 
 class DiamondCylinder(PolygonalCylinder):
@@ -255,6 +265,7 @@ class DiamondCylinder(PolygonalCylinder):
         self,
         radius: float,
         height: float,
+        arc_size: float = 360,
         stretch: tuple = (1, 1, 1),
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
@@ -264,17 +275,19 @@ class DiamondCylinder(PolygonalCylinder):
         creates an extruded diamond that behaves like a cylinder
         -------
         arguments:
-            - radius: the radius of the cylinder
-            - height: the height of the cylinder
-            - rotation: the rotation of the cylinder
-            - align: the alignment of the cylinder (default
+            - radius: (float) - the radius of the cylinder
+            - height: (float) - the height of the cylinder
+            - arc_size: (float, optional) – angular size of cone. Defaults to 360.
+            - rotation: (RotationLike) - the rotation of the cylinder
+            - align: (Union[None, Align, tuple[Align, Align, Align]]) - the alignment of the cylinder (default
                     is (Align.CENTER, Align.CENTER, Align.CENTER) )
-            - mode: the mode to use when adding the part
+            - mode: (Mode) - the mode to use when adding the part
         """
         super().__init__(
             radius=radius,
             height=height,
             side_count=4,
+            arc_size=arc_size,
             stretch=stretch,
             rotation=rotation,
             align=align,
@@ -379,19 +392,14 @@ class TeardropCylinder(BasePartObject):
 if __name__ == "__main__":
 
     show(
-        DiamondTorus(
-            50,
-            2,
-        ),
-        reset_camera=Camera.KEEP,
-    )
-    show(
-        DiamondCylinder(
+        PolygonalCylinder(
             radius=50,
             height=200,
+            side_count=6,
+            arc_size=270,
             stretch=(1, 1, 1),
             rotation=(0, 0, 0),
-            align=(Align.MIN, Align.MIN, Align.CENTER),
+            align=(Align.CENTER, Align.CENTER, Align.MAX),
         ),
         reset_camera=Camera.KEEP,
     )

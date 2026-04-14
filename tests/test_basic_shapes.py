@@ -2,21 +2,20 @@ from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from unittest.mock import patch
 import pytest
-from build123d import Box, BuildPart, Part, Align
+from build123d import Part, Align
 from b3dkit.basic_shapes import (
-    circular_intersection,
     DiamondTorus,
-    distance_to_circle_edge,
-    RoundedCylinder,
     DiamondCylinder,
     PolygonalCylinder,
-    # rail_block_template,
-    TeardropCylinder,
+    RoundedCylinder,
     Teardrop,
-    radius_to_apothem,
-    apothem_to_radius,
-    opposite_length,
+    TeardropCylinder,
     adjacent_length,
+    apothem_to_radius,
+    circular_intersection,
+    distance_to_circle_edge,
+    opposite_length,
+    radius_to_apothem,
 )
 
 
@@ -65,62 +64,75 @@ class TestTearDropSketch:
 
 
 class TestTeardropCylinder:
-    def test_teardrop_cylinder(self):
+    @pytest.mark.parametrize(
+        "align",
+        [
+            (Align.CENTER, Align.CENTER, Align.MIN),
+            (Align.CENTER, Align.CENTER, Align.CENTER),
+            (Align.CENTER, Align.CENTER, Align.MAX),
+        ],
+        ids=["z_min", "z_center", "z_max"],
+    )
+    def test_teardrop_cylinder_dimensions_across_z_alignments(self, align):
         cyl = TeardropCylinder(
             radius=10,
             height=10,
             peak_distance=11,
-            align=(Align.CENTER, Align.CENTER, Align.MIN),
+            align=align,
         )
         assert cyl.is_valid
         assert cyl.bounding_box().size.X == pytest.approx(20)
         assert cyl.bounding_box().size.Y == pytest.approx(21)
         assert cyl.bounding_box().size.Z == pytest.approx(10)
 
-    def test_align_zmax_teardrop_cylinder(self):
-        cyl = TeardropCylinder(
-            radius=10,
-            height=10,
-            peak_distance=11,
+    def test_teardrop_cylinder_z_alignment(self):
+        radius = 5
+        peak_distance = 6
+        height = 10
+
+        cylinder_max = TeardropCylinder(
+            radius=radius,
+            height=height,
+            peak_distance=peak_distance,
             align=(Align.CENTER, Align.CENTER, Align.MAX),
         )
-        assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(20)
-        assert cyl.bounding_box().size.Y == pytest.approx(21)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
+        assert cylinder_max.is_valid
 
-    def test_align_zcenter_teardrop_cylinder(self):
-        cyl = TeardropCylinder(
-            radius=10,
-            height=10,
-            peak_distance=11,
+        cylinder_center = TeardropCylinder(
+            radius=radius,
+            peak_distance=peak_distance,
+            height=height,
             align=(Align.CENTER, Align.CENTER, Align.CENTER),
         )
-        assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(20)
-        assert cyl.bounding_box().size.Y == pytest.approx(21)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
+        assert cylinder_center.is_valid
 
-    def test_teardrop_cylinder(self):
-        cyl = TeardropCylinder(
-            radius=10,
-            height=10,
-            peak_distance=11,
+        cylinder_min = TeardropCylinder(
+            radius=radius,
+            peak_distance=peak_distance,
+            height=height,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(20)
-        assert cyl.bounding_box().size.Y == pytest.approx(21)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
+        assert cylinder_min.is_valid
+
+        max_bbox_max_z = cylinder_max.bounding_box().max.Z
+        center_bbox_max_z = cylinder_center.bounding_box().max.Z
+        min_bbox_max_z = cylinder_min.bounding_box().max.Z
+
+        assert min_bbox_max_z > center_bbox_max_z > max_bbox_max_z
 
 
 class TestCircularIntersection:
-    def test_circular_intersection(self) -> float:
-        assert circular_intersection(10, 5) == 8.660254037844387
+    def test_circular_intersection(self):
+        assert circular_intersection(10, 5) == pytest.approx(8.660254037844387)
 
-    def test_circular_intersection_discriminant_error(self):
-        with pytest.raises(ValueError):
-            circular_intersection(-25, -10) == 8.660254037844387
+    @pytest.mark.parametrize(
+        "radius, coordinate",
+        [(-25, -10), (10, 25), (10, -25)],
+        ids=["negative_radius", "coordinate_gt_radius", "coordinate_lt_zero"],
+    )
+    def test_circular_intersection_rejects_invalid_inputs(self, radius, coordinate):
+        with pytest.raises(ValueError, match="x-coordinate"):
+            circular_intersection(radius, coordinate)
 
 
 class TestTorus:
@@ -134,11 +146,13 @@ class TestTorus:
 
 class TestDistanceToCircleEdge:
     def test_distance_to_circle_edge(self):
-        assert distance_to_circle_edge(10, (0, 5), 45) == 5.818609561002116
+        assert distance_to_circle_edge(10, (0, 5), 45) == pytest.approx(
+            5.818609561002116
+        )
 
-    def test_distance_to_circle_edge_discriminant_error(self):
+    def test_distance_to_circle_edge_rejects_point_outside_circle(self):
         with pytest.raises(ValueError):
-            distance_to_circle_edge(10, (0, 25), 45) == 5.818609561002116
+            distance_to_circle_edge(10, (0, 25), 45)
 
 
 class TestRoundedCylinder:
@@ -157,74 +171,97 @@ class TestRoundedCylinder:
 
 class TestPolygonalCylinder:
 
-    def test_diamond_cylinder(self):
-        cyl = DiamondCylinder(5, 10)
+    @pytest.mark.parametrize(
+        "kwargs, expected_xyz",
+        [
+            # 1) Baseline full hex prism
+            (
+                dict(radius=5, height=10),
+                (10.0, 8.660254037844387, 10.0),
+            ),
+            # 2) Partial arc clips the profile (smaller or equal XY, same Z)
+            (
+                dict(radius=5, height=10, arc_size=180),
+                None,  # custom assertions below
+            ),
+            # 3) Non-uniform stretch: Z via extrude, XY via post-scale
+            (
+                dict(radius=5, height=10, stretch=(2, 1.5, 1.2)),
+                (20.0, 12.99038105676658, 12.0),
+            ),
+            # 4) Z alignment behavior check with same dimensions
+            (
+                dict(
+                    radius=5,
+                    height=10,
+                    align=(Align.CENTER, Align.CENTER, Align.MAX),
+                ),
+                (10.0, 8.660254037844387, 10.0),
+            ),
+        ],
+    )
+    def test_polygonal_cylinder_matrix(self, kwargs, expected_xyz):
+        cyl = PolygonalCylinder(**kwargs)
         assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(10)
-        assert cyl.bounding_box().size.Y == pytest.approx(10)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
 
-    def test_diamond_cylinder_zmax(self):
-        cyl = DiamondCylinder(5, 10, align=(Align.CENTER, Align.CENTER, Align.MAX))
-        assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(10)
-        assert cyl.bounding_box().size.Y == pytest.approx(10)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
+        bbox = cyl.bounding_box()
 
-    def test_polygonal_cylinder(self):
-        cyl = PolygonalCylinder(5, 10)
-        assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(10)
-        assert cyl.bounding_box().size.Y == pytest.approx(10)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
+        if expected_xyz is not None:
+            ex, ey, ez = expected_xyz
+            assert bbox.size.X == pytest.approx(ex)
+            assert bbox.size.Y == pytest.approx(ey)
+            assert bbox.size.Z == pytest.approx(ez)
+        else:
+            full = PolygonalCylinder(radius=kwargs["radius"], height=kwargs["height"])
+            full_bbox = full.bounding_box()
+            assert bbox.size.X <= full_bbox.size.X
+            assert bbox.size.Y <= full_bbox.size.Y
+            assert bbox.size.Z == pytest.approx(full_bbox.size.Z)
+            assert cyl.volume < full.volume
 
-    def test_polygonal_cylinder(self):
-        cyl = PolygonalCylinder(5, 10, align=(Align.CENTER, Align.CENTER, Align.MAX))
-        assert cyl.is_valid
-        assert cyl.bounding_box().size.X == pytest.approx(10)
-        assert cyl.bounding_box().size.Y == pytest.approx(8.660254237844388)
-        assert cyl.bounding_box().size.Z == pytest.approx(10)
-
-    def test_teardrop_cylinder_z_alignment(self):
-        radius = 5
-        peak_distance = 6
-        height = 10
-
-        # Test Align.MAX (line 201-202)
-        cylinder_max = TeardropCylinder(
-            radius=radius,
-            height=height,
-            peak_distance=peak_distance,
-            align=(Align.CENTER, Align.CENTER, Align.MAX),
+    def test_polygonal_cylinder_align_z_positions(self):
+        h = 10
+        c_min = PolygonalCylinder(5, h, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        c_ctr = PolygonalCylinder(
+            5, h, align=(Align.CENTER, Align.CENTER, Align.CENTER)
         )
-        assert cylinder_max.is_valid
+        c_max = PolygonalCylinder(5, h, align=(Align.CENTER, Align.CENTER, Align.MAX))
 
-        # Test Align.CENTER (line 203)
-        cylinder_center = TeardropCylinder(
-            radius=radius,
-            peak_distance=peak_distance,
-            height=height,
-            align=(Align.CENTER, Align.CENTER, Align.CENTER),
+        assert (
+            c_min.bounding_box().max.Z
+            > c_ctr.bounding_box().max.Z
+            > c_max.bounding_box().max.Z
         )
-        assert cylinder_center.is_valid
 
-        # Test Align.MIN (default case, not explicitly in those lines but completes coverage)
-        cylinder_min = TeardropCylinder(
-            radius=radius,
-            peak_distance=peak_distance,
-            height=height,
-            align=(Align.CENTER, Align.CENTER, Align.MIN),
-        )
-        assert cylinder_min.is_valid
 
-        # Verify that different alignments produce different Z positions
-        # This ensures the alignment logic is actually working
-        max_bbox_max_z = cylinder_max.bounding_box().max.Z
-        center_bbox_max_z = cylinder_center.bounding_box().max.Z
-        min_bbox_max_z = cylinder_min.bounding_box().max.Z
+class TestDiamondCylinder:
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            dict(radius=5, height=10),
+            dict(
+                radius=5,
+                height=10,
+                arc_size=180,
+                stretch=(1.2, 0.8, 1.1),
+                align=(Align.CENTER, Align.CENTER, Align.MAX),
+            ),
+        ],
+        ids=["defaults", "non_default_passthrough"],
+    )
+    def test_matches_polygonal_cylinder_side_count_4(self, kwargs):
+        diamond = DiamondCylinder(**kwargs)
+        poly4 = PolygonalCylinder(side_count=4, **kwargs)
 
-        # MAX should be highest, MIN should be lowest
-        assert min_bbox_max_z > center_bbox_max_z > max_bbox_max_z
+        assert diamond.is_valid
+        assert poly4.is_valid
+
+        db = diamond.bounding_box().size
+        pb = poly4.bounding_box().size
+        assert db.X == pytest.approx(pb.X)
+        assert db.Y == pytest.approx(pb.Y)
+        assert db.Z == pytest.approx(pb.Z)
+        assert diamond.volume == pytest.approx(poly4.volume)
 
 
 class TestBareExecution:

@@ -111,18 +111,26 @@ Creates an extruded diamond (4-sided polygon) that behaves like a cylinder. This
 DiamondCylinder(
     radius: float,
     height: float,
-    rotation: tuple = (0, 0, 0),
-    align: tuple = (Align.CENTER, Align.CENTER, Align.CENTER),
-    stretch: tuple = (1, 1, 1)
+    arc_size: float = 360,
+    stretch: tuple = (1, 1, 1),
+    rotation: RotationLike = (0, 0, 0),
+    align: Align | tuple[Align, Align, Align] | None = None,
+    mode: Mode = Mode.ADD,
 )
 ```
 
 **Arguments:**
 - `radius` (float): The radius of the circumscribed circle
 - `height` (float): The height of the extrusion
-- `rotation` (tuple, default=(0, 0, 0)): Rotation angles (X, Y, Z) in degrees
-- `align` (tuple, default=(Align.CENTER, Align.CENTER, Align.CENTER)): Alignment
+- `arc_size` (float, default=360): Angular sweep in degrees for the circular clipping sector used to intersect the base profile
 - `stretch` (tuple, default=(1, 1, 1)): Scaling factors (X, Y, Z)
+- `rotation` (RotationLike, default=(0, 0, 0)): Rotation angles (X, Y, Z) in degrees
+- `align` (Align | tuple[Align, Align, Align] | None, default=None): Alignment along X, Y, Z axes
+- `mode` (Mode, default=Mode.ADD): Boolean combination mode
+
+**Arc Size Behavior:**
+- `arc_size=360` produces the full diamond profile
+- `arc_size<360` clips the XY profile and reduces volume while preserving Z behavior from `height` and `stretch[2]`
 
 **Returns:**
 - `Part`: The diamond cylinder
@@ -165,10 +173,12 @@ Creates an extruded regular polygon that behaves like a cylinder.
 PolygonalCylinder(
     radius: float,
     height: float,
-    sides: int = 6,
-    rotation: tuple = (0, 0, 0),
-    align: tuple = (Align.CENTER, Align.CENTER, Align.CENTER),
-    stretch: tuple = (1, 1, 1)
+    side_count: int = 6,
+    arc_size: float = 360,
+    stretch: tuple = (1, 1, 1),
+    rotation: RotationLike = (0, 0, 0),
+    align: Align | tuple[Align, Align, Align] | None = None,
+    mode: Mode = Mode.ADD,
 )
 ```
 
@@ -176,12 +186,16 @@ PolygonalCylinder(
 **Arguments:**
 - `radius` (float): The radius of the circumscribed circle
 - `height` (float): The height of the extrusion
-- `sides` (int, default=6): Number of sides of the polygon
+- `side_count` (int, default=6): Number of sides of the polygon
+- `arc_size` (float, default=360): Angular sweep in degrees for the circular clipping sector used to intersect the base profile
 - `stretch` (tuple, default=(1, 1, 1)): Scaling factors (X, Y, Z)
-- `rotation` (RotationLike, optional): angles to rotate about axes. Defaults to (0, 0, 0)
-- `align` (Align | tuple[Align, Align, Align] | None, optional): align MIN, CENTER,
-        or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
-- `mode` (Mode, optional): combine mode. Defaults to Mode.ADD
+- `rotation` (RotationLike, default=(0, 0, 0)): Angles to rotate about axes
+- `align` (Align | tuple[Align, Align, Align] | None, default=None): Align MIN, CENTER, or MAX on each axis
+- `mode` (Mode, default=Mode.ADD): Boolean combination mode
+
+**Arc Size Behavior:**
+- `arc_size=360` keeps the full regular polygonal profile
+- `arc_size<360` clips the XY profile and reduces volume while preserving Z behavior from `height` and `stretch[2]`
 
 
 ### RoundedCylinder
