@@ -1,8 +1,9 @@
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
+from inspect import signature
 from unittest.mock import patch
 import pytest
-from build123d import Box, BuildPart, Part, Align, Axis, fillet, Compound
+from build123d import Box, BuildPart, Circle, Part, Align, Axis, fillet, Compound
 
 from b3dkit.high_top_slide_box import (
     high_top_slide_box,
@@ -10,6 +11,16 @@ from b3dkit.high_top_slide_box import (
     high_top_slide_box_base,
     _slide_top_rail_cut,
     _high_top_slide_box_top,
+)
+
+
+# high_top_slide_box builds its rails from DiamondCylinder, which profiles itself
+# with Circle(arc_size=...). Native arc_size support arrived in build123d's 0.10.1
+# dev line; the compatibility monkey-patch that used to backfill it has been
+# removed, so skip the whole module when the installed build123d can't accept it.
+pytestmark = pytest.mark.skipif(
+    "arc_size" not in signature(Circle.__init__).parameters,
+    reason="installed build123d Circle lacks native arc_size support (needs >= 0.10.1)",
 )
 
 

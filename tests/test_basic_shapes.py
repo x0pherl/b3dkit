@@ -1,8 +1,9 @@
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
+from inspect import signature
 from unittest.mock import patch
 import pytest
-from build123d import Part, Align
+from build123d import Circle, Part, Align
 from b3dkit.basic_shapes import (
     DiamondTorus,
     DiamondCylinder,
@@ -16,6 +17,16 @@ from b3dkit.basic_shapes import (
     distance_to_circle_edge,
     opposite_length,
     radius_to_apothem,
+)
+
+
+# PolygonalCylinder / DiamondCylinder build their profile with Circle(arc_size=...).
+# Native arc_size support landed in build123d's 0.10.1 dev line; the compatibility
+# monkey-patch that used to backfill it on older releases has been removed, so skip
+# the arc_size-dependent shapes when the installed build123d can't accept it.
+requires_circle_arc_size = pytest.mark.skipif(
+    "arc_size" not in signature(Circle.__init__).parameters,
+    reason="installed build123d Circle lacks native arc_size support (needs >= 0.10.1)",
 )
 
 
@@ -169,6 +180,7 @@ class TestRoundedCylinder:
         assert cyl.bounding_box().size.Z == pytest.approx(11)
 
 
+@requires_circle_arc_size
 class TestPolygonalCylinder:
 
     @pytest.mark.parametrize(
@@ -234,6 +246,7 @@ class TestPolygonalCylinder:
         )
 
 
+@requires_circle_arc_size
 class TestDiamondCylinder:
     @pytest.mark.parametrize(
         "kwargs",
@@ -264,6 +277,7 @@ class TestDiamondCylinder:
         assert diamond.volume == pytest.approx(poly4.volume)
 
 
+@requires_circle_arc_size
 class TestBareExecution:
     def test_bare_execution(self):
         with (
