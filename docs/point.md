@@ -41,6 +41,14 @@ p[1] # returns the y coordinate (3)
     Point(0,10).distance_to(Point(10,10)) # returns 10.0
     ```
 
+#### axial)distance_to
+- `axial_distance_to(point: Point, axis: Axis) -> float`
+  - Identifies the distance along a single Axis to a second point from the current point.
+    ```
+    Point(0,10).axial_distance_to(Point(10,-10), Axis.X) # returns 10.0
+    Point(0,10).axial_distance_to(Point(10,-10), Axis.Y) # returns 20.0
+    ```
+
 #### related_point
 - `related_point(angle: float, distance: float) -> Point`
   - Identifies a second point at a specified angle and distance from the current point.

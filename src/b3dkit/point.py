@@ -91,6 +91,22 @@ class Point:
             - float: The Euclidean distance between the two points"""
         return ((self.x - point.x) ** 2 + (self.y - point.y) ** 2) ** 0.5
 
+    def axial_distance_to(self, point: "Point", axis: Axis) -> float:
+        """from the point, identify the distance to a second point
+        ----------
+        Arguments:
+            - point: Point
+                The target point to calculate distance to
+            - axis: Axis
+                The Axis along which to measure the difference
+        Returns:
+            - float: The distance along the passed axis between the two points"""
+        return (
+            Point(self.X, 0).distance_to(Point(point.X, 0))
+            if axis == Axis.X
+            else Point(0, self.y).distance_to(Point(0, point.Y))
+        )
+
     def related_point(self, angle: float, distance: float) -> "Point":
         """from the point, identify a second point at a specified angle and distance
         ----------

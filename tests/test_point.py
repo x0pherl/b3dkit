@@ -41,6 +41,11 @@ class TestPoint:
         angle = p1.angle_to(p2)
         assert angle == pytest.approx(45.0)
 
+    def test_axial_distance_to(self):
+        assert Point(20, 2).axial_distance_to(Point(-20, 2), Axis.X) == pytest.approx(
+            40.0
+        )
+
     def test_distance_to(self):
         p1 = Point(0, 0)
         p2 = Point(3, 4)
