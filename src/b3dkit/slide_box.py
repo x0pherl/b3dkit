@@ -1,3 +1,5 @@
+from math import radians, tan
+
 from build123d import (
     Align,
     BuildPart,
@@ -25,6 +27,45 @@ from build123d import (
 from ocp_vscode import show, Camera
 from b3dkit import Divot
 
+#: the draft applied to the sliding faces; the divot placement below depends on
+#: this matching the taper passed to extrude()
+SLIDER_TAPER_ANGLE = 22.5
+
+
+def _divot_spacing(
+    sketch_width: float,
+    wall_thickness: float,
+    tolerance: float,
+    x_straighten_distance: float,
+    divot_radius: float,
+) -> float:
+    """
+    Determine the x distance between the pair of divots on a slider template.
+
+    The divots would naturally sit one wall thickness inboard of the sketch, but
+    the sliding faces are tapered, so the widest part of a divot -- the top of its
+    extended base, one radius above the underside of the rail -- can graze the
+    tapered face. A grazing intersection leaves needle-thin slivers behind the
+    boolean, so pull the pair far enough inboard that a divot only ever meets the
+    flat underside.
+    """
+    half_width = sketch_width / 2
+    # depth below the top of the template at the widest point of the divot
+    widest_depth = max(wall_thickness - divot_radius, 0)
+    tapered_face = (
+        half_width
+        - wall_thickness
+        - abs(tolerance)
+        + widest_depth * tan(radians(SLIDER_TAPER_ANGLE))
+    )
+    return (
+        min(
+            half_width - x_straighten_distance - wall_thickness,
+            tapered_face - divot_radius - divot_radius / 5,
+        )
+        * 2
+    )
+
 
 def slider_template(
     sketch: Sketch,
@@ -41,7 +82,11 @@ def slider_template(
     with BuildPart() as slider_part:
         with BuildSketch() as top_sketch:
             offset(sketch, amount=-abs(tolerance) - (abs(wall_thickness)))
-        extrude(top_sketch.sketch, amount=-wall_thickness - abs(tolerance), taper=-22.5)
+        extrude(
+            top_sketch.sketch,
+            amount=-wall_thickness - abs(tolerance),
+            taper=-SLIDER_TAPER_ANGLE,
+        )
         cross_section = section(
             obj=slider_part.part,
             section_by=Plane.XZ.offset(
@@ -56,21 +101,26 @@ def slider_template(
             )
         )
         if divot_radius > 0:
+            # a divot wider than half the wall would overhang the open front of
+            # the template; keep it far enough back to meet only the underside
+            divot_y = max(
+                sketch.bounding_box().min.Y + wall_thickness / 2,
+                slider_part.part.bounding_box().min.Y
+                + divot_radius
+                + divot_radius / 5,
+            )
             with BuildPart(
-                Location(
-                    (
-                        0,
-                        sketch.bounding_box().min.Y + wall_thickness / 2,
-                        -wall_thickness,
-                    ),
-                    (180, 0, 0),
-                ),
+                Location((0, divot_y, -wall_thickness), (180, 0, 0)),
                 mode=Mode.ADD,
             ):
                 with GridLocations(
-                    sketch.bounding_box().size.X
-                    - x_straighten_distance * 2
-                    - wall_thickness * 2,
+                    _divot_spacing(
+                        sketch.bounding_box().size.X,
+                        wall_thickness,
+                        tolerance,
+                        x_straighten_distance,
+                        divot_radius,
+                    ),
                     0,
                     2,
                     1,
