@@ -29,7 +29,7 @@ from b3dkit.bolt_fittings import (
     TeardropBoltCutSinkhole,
 )
 from b3dkit.click_fit import Divot
-from b3dkit.dovetail import DovetailPart, DovetailStyle, dovetail_subpart
+from b3dkit.dovetail import DovetailSubpart, DovetailStyle, dovetail_subpart
 from b3dkit.hexwall import HexCylindrical, HexWall
 from b3dkit.high_top_slide_box import (
     high_top_slide_box,
@@ -69,7 +69,7 @@ __all__ = [
     # click_fit
     "Divot",
     # dovetail
-    "DovetailPart",
+    "DovetailSubpart",
     "DovetailStyle",
     "dovetail_subpart",
     # hexwall

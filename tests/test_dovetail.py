@@ -12,11 +12,11 @@ from build123d import BuildPart, Box, Part, Sphere, Align, Mode, Location, add
 from b3dkit.point import Point
 
 from b3dkit.dovetail import (
-    DovetailPart,
+    DovetailSubpart,
     DovetailStyle,
     dovetail_subpart,
-    snugtail_subpart_outline,
-    dovetail_subpart_outline,
+    _snugtail_subpart_outline,
+    _dovetail_subpart_outline,
 )
 
 
@@ -55,7 +55,7 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     vertical_offset=100,
                 ),
             )
@@ -69,7 +69,7 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     vertical_offset=-100,
                 ),
             )
@@ -83,7 +83,7 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     style=DovetailStyle.TRADITIONAL,
                     vertical_offset=0.5,
                     click_fit_radius=0.5,
@@ -101,7 +101,7 @@ class TestDovetail:
                     Point(-5, 0),
                     Point(5, 0),
                     taper_angle=1,
-                    section=DovetailPart.SOCKET,
+                    subpart=DovetailSubpart.SOCKET,
                     scarf_angle=20,
                     vertical_offset=-0.5,
                 ),
@@ -110,10 +110,10 @@ class TestDovetail:
 
     def test_raises_invalid_style_for_snugtail(self):
         with pytest.raises(ValueError):
-            dovetail_subpart_outline(
+            _dovetail_subpart_outline(
                 start=Point(-5, 0),
                 end=Point(5, 0),
-                section=DovetailPart.SOCKET,
+                subpart=DovetailSubpart.SOCKET,
                 style=DovetailStyle.SNUGTAIL,
             )
 
@@ -128,7 +128,7 @@ class TestDovetail:
                     Point(5, 0),
                     taper_angle=1,
                     style=DovetailStyle.T_SLOT,
-                    section=DovetailPart.SOCKET,
+                    subpart=DovetailSubpart.SOCKET,
                     scarf_angle=20,
                     vertical_offset=-0.5,
                 ),
@@ -146,7 +146,7 @@ class TestDovetail:
                     Point(5, 0),
                     taper_angle=1,
                     style=DovetailStyle.T_SLOT,
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     scarf_angle=20,
                     vertical_offset=-0.5,
                 ),
@@ -162,7 +162,7 @@ class TestDovetail:
                     test.part,
                     Point(-5, 0),
                     Point(5, 0),
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     style=DovetailStyle.SNUGTAIL,
                     vertical_offset=0.5,
                     click_fit_radius=1,
@@ -180,7 +180,7 @@ class TestDovetail:
                     Point(-5, 0),
                     Point(5, 0),
                     taper_angle=1,
-                    section=DovetailPart.SOCKET,
+                    subpart=DovetailSubpart.SOCKET,
                     style=DovetailStyle.SNUGTAIL,
                     scarf_angle=20,
                     vertical_offset=-0.5,
@@ -193,10 +193,10 @@ class TestDovetail:
         with BuildPart(mode=Mode.PRIVATE) as test:
             Box(10, 50, 2, align=(Align.CENTER, Align.CENTER, Align.MIN))
         with pytest.raises(ValueError):
-            snugtail_subpart_outline(
+            _snugtail_subpart_outline(
                 Point(-5, 0),
                 Point(5, 0),
-                section=DovetailPart.SOCKET,
+                subpart=DovetailSubpart.SOCKET,
                 taper_distance=0,
                 length_ratio=0.9,
                 depth_ratio=0.11,
@@ -212,7 +212,7 @@ class TestDovetail:
                     Point(-5, 0),
                     Point(5, 0),
                     taper_angle=-1,
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     vertical_offset=-0.5,
                 ),
             )
@@ -223,7 +223,7 @@ class TestDovetail:
                     Point(-5, 0),
                     Point(5, 0),
                     taper_angle=0.5,
-                    section=DovetailPart.TAIL,
+                    subpart=DovetailSubpart.TAIL,
                     vertical_offset=0.5,
                 ),
             )
@@ -269,10 +269,10 @@ class TestDovetailParameterForwarding:
     """Every documented knob must actually reach the outline that consumes it.
 
     Regression coverage for the forwarding bug introduced in b079844 ("initial
-    T Slot dovetail support"), which extracted ``subpart_section`` out of
+    T Slot dovetail support"), which extracted ``_subpart_slab`` out of
     ``dovetail_subpart`` and declared ``linear_offset``, ``tail_angle_offset``,
     ``length_ratio`` and ``depth_ratio`` on the new helper without ever passing
-    them to the inner ``subpart_outline`` calls. The parameters were accepted and
+    them to the inner ``_subpart_outline`` calls. The parameters were accepted and
     silently discarded, so ``dovetail.py`` held 100% line coverage while four
     public knobs did nothing.
     """
@@ -307,7 +307,7 @@ class TestSnugtailDepthRatioDecoupling:
     again as part of a coordinated retune that halved ``tail_depth`` throughout
     and dropped ``depth_ratio`` out of snugtail's ``cut_length`` formulas
     entirely. The parameter no longer means for snugtail what it means for
-    TRADITIONAL, and ``snugtail_subpart_outline`` keeps its own prototyped
+    TRADITIONAL, and ``_snugtail_subpart_outline`` keeps its own prototyped
     default of 0.15.
 
     These tests exist so that re-forwarding it fails loudly rather than silently
@@ -318,18 +318,18 @@ class TestSnugtailDepthRatioDecoupling:
         import b3dkit.dovetail as dovetail_module
 
         received = []
-        original = dovetail_module.snugtail_subpart_outline
+        original = dovetail_module._snugtail_subpart_outline
 
         def spy(*args, **kwargs):
             received.append(kwargs.get("depth_ratio"))
             return original(*args, **kwargs)
 
-        monkeypatch.setattr(dovetail_module, "snugtail_subpart_outline", spy)
+        monkeypatch.setattr(dovetail_module, "_snugtail_subpart_outline", spy)
         _subpart(style=DovetailStyle.SNUGTAIL, depth_ratio=0.3)
 
-        assert received, "snugtail_subpart_outline was never called"
+        assert received, "_snugtail_subpart_outline was never called"
         assert all(value is None for value in received), (
-            "depth_ratio reached snugtail_subpart_outline; f6c4b7b deliberately "
+            "depth_ratio reached _snugtail_subpart_outline; f6c4b7b deliberately "
             "decoupled it after physical prototyping"
         )
 
@@ -353,16 +353,16 @@ class TestDefaultGeometryUnchanged:
     @pytest.mark.parametrize(
         "style, section, expected_volume",
         [
-            (DovetailStyle.SNUGTAIL, DovetailPart.TAIL, 9244.107505),
-            (DovetailStyle.SNUGTAIL, DovetailPart.SOCKET, 62680.650620),
-            (DovetailStyle.TRADITIONAL, DovetailPart.TAIL, 38288.043194),
-            (DovetailStyle.TRADITIONAL, DovetailPart.SOCKET, 33669.241040),
-            (DovetailStyle.T_SLOT, DovetailPart.TAIL, 35802.080480),
-            (DovetailStyle.T_SLOT, DovetailPart.SOCKET, 36162.080473),
+            (DovetailStyle.SNUGTAIL, DovetailSubpart.TAIL, 9244.107505),
+            (DovetailStyle.SNUGTAIL, DovetailSubpart.SOCKET, 62680.650620),
+            (DovetailStyle.TRADITIONAL, DovetailSubpart.TAIL, 38288.043194),
+            (DovetailStyle.TRADITIONAL, DovetailSubpart.SOCKET, 33669.241040),
+            (DovetailStyle.T_SLOT, DovetailSubpart.TAIL, 35802.080480),
+            (DovetailStyle.T_SLOT, DovetailSubpart.SOCKET, 36162.080473),
         ],
     )
     def test_default_volume_matches_pre_fix_reference(
         self, style, section, expected_volume
     ):
-        part = _subpart(style=style, section=section)
+        part = _subpart(style=style, subpart=section)
         assert part.volume == pytest.approx(expected_volume, abs=1e-4)

@@ -6,16 +6,15 @@ Dovetail is intended for breaking large parts into a dovetail and socketed part 
 
 ![example of a part split into a dovetail and a socket](dovetail.png)
 
-The `dovetail_subpart` function takes a build123d part and the necessary parameters to break it into either the dovetail or the socket component of the split. Call it twice with the same arguments, changing only `section`, to produce a mating pair.
+The `dovetail_subpart` function takes a build123d part and the necessary parameters to break it into either the dovetail or the socket component of the split. Call it twice with the same arguments, changing only `subpart`, to produce a mating pair.
 
 All linear dimensions are in millimeters and all angles are in degrees.
 
 ## Terminology
 
-- **subpart** — one of the two pieces produced by splitting a part. This is what `dovetail_subpart` returns.
-- **tail** — the subpart carrying the protruding tongue (`DovetailPart.TAIL`).
-- **socket** — the subpart carrying the matching recess (`DovetailPart.SOCKET`).
-- **`section`** — the *argument* used to select which subpart you want. It names the selector, not the result.
+- **subpart** — one of the two pieces produced by splitting a part. This is what `dovetail_subpart` returns, and the `subpart=` argument selects which one you get.
+- **tail** — the subpart carrying the protruding tongue (`DovetailSubpart.TAIL`).
+- **socket** — the subpart carrying the matching recess (`DovetailSubpart.SOCKET`).
 
 The two subparts are not equal halves: the tongue belongs to the tail, and for `SNUGTAIL` the joint wraps around three sides, so the socket is typically several times the volume of the tail.
 
@@ -34,7 +33,7 @@ The two subparts are not equal halves: the tongue belongs to the tail, and for `
 - `part` (Part): The part to split into a dovetail or socket part. The part should be oriented along the XY plane.
 - `start` (Point): The start point along the XY Plane for the dovetail line.
 - `end` (Point): The end point along the XY Plane for the dovetail line.
-- `section` (DovetailPart, default=`DovetailPart.TAIL`): Which subpart to create — `DovetailPart.TAIL` or `DovetailPart.SOCKET`.
+- `subpart` (DovetailSubpart, default=`DovetailSubpart.TAIL`): Which subpart to create — `DovetailSubpart.TAIL` or `DovetailSubpart.SOCKET`.
 - `style` (DovetailStyle, default=`DovetailStyle.SNUGTAIL`): The dovetail style. See [Styles](#styles).
 - `tolerance` (float, default=0.025): The clearance between tail and socket, in mm.
 - `vertical_tolerance` (float, default=0.2): Additional tolerance for vertical offset, given that in printing, supports or bridging introduce additional volume.
@@ -74,13 +73,13 @@ The table below reflects what each parameter actually changes. Passing a paramet
 
 ## Returns
 
-- `Part`: The requested subpart — the tail or the socket, per `section`.
+- `Part`: The requested subpart — the tail or the socket, per `subpart`.
 
 ## Example
 
 ```python
 from build123d import Align, Box, BuildPart, Mode
-from b3dkit import Point, DovetailPart, DovetailStyle, dovetail_subpart
+from b3dkit import Point, DovetailSubpart, DovetailStyle, dovetail_subpart
 
 with BuildPart(mode=Mode.PRIVATE) as longbox:
     Box(50, 40, 50, align=(Align.CENTER, Align.CENTER, Align.MIN))
@@ -89,11 +88,11 @@ start = Point(0, -20)
 end = Point(0, 20)
 
 # A mating pair with default parameters (SNUGTAIL).
-tail = dovetail_subpart(longbox.part, start, end, section=DovetailPart.TAIL)
-socket = dovetail_subpart(longbox.part, start, end, section=DovetailPart.SOCKET)
+tail = dovetail_subpart(longbox.part, start, end, subpart=DovetailSubpart.TAIL)
+socket = dovetail_subpart(longbox.part, start, end, subpart=DovetailSubpart.SOCKET)
 ```
 
-Both subparts of a joint must be built from the same arguments — only `section` may
+Both subparts of a joint must be built from the same arguments — only `subpart` may
 differ. Any other divergence produces two subparts that are individually valid and do
 not fit together.
 
@@ -109,8 +108,8 @@ joint = dict(
     click_fit_radius=0.2,
 )
 
-tail = dovetail_subpart(longbox.part, start, end, section=DovetailPart.TAIL, **joint)
-socket = dovetail_subpart(longbox.part, start, end, section=DovetailPart.SOCKET, **joint)
+tail = dovetail_subpart(longbox.part, start, end, subpart=DovetailSubpart.TAIL, **joint)
+socket = dovetail_subpart(longbox.part, start, end, subpart=DovetailSubpart.SOCKET, **joint)
 ```
 
 ## Raises
