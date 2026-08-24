@@ -76,11 +76,11 @@ def _divot_spacing(
 def _slider_template(
     sketch: Sketch,
     wall_thickness: float = 2,
-    tolerance=0.2,
+    tolerance: float = 0.2,
     top_offset: float = 0,
     x_straighten_distance: float = 0,
-    divot_radius=0,
-    cut_template=True,
+    divot_radius: float = 0,
+    cut_template: bool = True,
 ) -> Part:
     """
     Create a slider part based on a sketch.
@@ -143,11 +143,11 @@ def _slider_template(
 def slide_lid(
     part: Part,
     wall_thickness: float = 2,
-    tolerance=0.15,
+    tolerance: float = 0.15,
     top_offset: float = 0,
     thumb_radius: float = 5,
     x_straighten_distance: float = 0,
-    divot_radius=0,
+    divot_radius: float = 0,
 ) -> Part:
 
     cross_section = section(
@@ -205,7 +205,7 @@ def slide_box(
     top_offset: float = 0,
     thumb_radius: float = 5,
     x_straighten_distance: float = 0,
-    slide_tolerance=0.15,
+    slide_tolerance: float = 0.15,
     divot_radius: float = 0,
 ) -> Compound:
 

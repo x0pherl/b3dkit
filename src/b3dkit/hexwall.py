@@ -53,7 +53,7 @@ class HexWall(BasePartObject):
         height: float,
         apothem: float,
         wall_thickness: float,
-        inverse=False,
+        inverse: bool = False,
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,

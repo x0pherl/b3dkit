@@ -461,7 +461,7 @@ def _traditional_subpart_divots(
     depth_ratio: float = 1 / 6,
     vertical_offset: float = 0,
     click_fit_radius: float = 0,
-):
+) -> Part:
     """
     adds/subtracts click-fit divots to part and returns it
     ----------
@@ -642,7 +642,7 @@ def _subpart_divots(
     length_ratio: float = 1 / 3,
     vertical_offset: float = 0,
     click_fit_radius: float = 0,
-):
+) -> Part:
     """
     adds/subtracts click-fit divots to part and returns it
     ----------
@@ -993,7 +993,7 @@ def _tslot_split_line(
     slot_count: int = 1,
     depth: float = 2,
     tolerance: float = 0.1,
-    taper_distance=0,
+    taper_distance: float = 0,
 ) -> Line:
     """
     given a start and end point, returns a tslot split line as a Line object

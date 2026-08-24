@@ -95,7 +95,9 @@ def adjacent_length(angle: float, opposite_length: float) -> float:
     return opposite_length / tan(angle_rad)
 
 
-def distance_to_circle_edge(radius, point, angle) -> float:
+def distance_to_circle_edge(
+    radius: float, point: tuple[float, float], angle: float
+) -> float:
     """
     for a circle with the given radius, find the distance from the
     given point to the edge of the circle in the direction determined
@@ -140,7 +142,7 @@ class DiamondTorus(BasePartObject):
         self,
         major_radius: float,
         minor_radius: float,
-        stretch: tuple = (1, 1),
+        stretch: tuple[float, float] = (1, 1),
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,
@@ -222,7 +224,7 @@ class PolygonalCylinder(BasePartObject):
         height: float,
         side_count: int = 6,
         arc_size: float = 360,
-        stretch: tuple = (1, 1, 1),
+        stretch: tuple[float, float, float] = (1, 1, 1),
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,
@@ -268,7 +270,7 @@ class DiamondCylinder(PolygonalCylinder):
         radius: float,
         height: float,
         arc_size: float = 360,
-        stretch: tuple = (1, 1, 1),
+        stretch: tuple[float, float, float] = (1, 1, 1),
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,

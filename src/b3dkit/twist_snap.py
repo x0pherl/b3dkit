@@ -166,7 +166,7 @@ class TwistSnapSocket(BasePartObject):
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,
-    ) -> Compound:
+    ):
         """
         Returns a socket that locks into a connector with a twist.
         ----------

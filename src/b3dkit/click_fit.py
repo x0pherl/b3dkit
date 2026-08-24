@@ -35,7 +35,7 @@ class Divot(BasePartObject):
         self,
         radius: float = 0.5,
         positive: bool = True,
-        extend_base=False,
+        extend_base: bool = False,
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,

@@ -28,7 +28,7 @@ def apothem_to_radius(apothem: float, side_count: int = 6) -> float
 
 **Arguments**
 - `apothem` (float): The apothem of the polygon
-- `side_count` (float): The number of sides of the poygon.
+- `side_count` (int): The number of sides of the poygon.
 
 **Returns:**
 - `float`: The radius of the polygon
@@ -56,7 +56,7 @@ Finds the intersection point along one axis given a coordinate on the other axis
 ### distance_to_circle_edge
 
 ```python
-distance_to_circle_edge(radius: float, point: tuple, angle: float) -> float
+distance_to_circle_edge(radius: float, point: tuple[float, float], angle: float) -> float
 ```
 
 Calculates the distance from a given point to the edge of a circle in a specified direction.
@@ -87,15 +87,15 @@ Calculates the opposite side length of a right triangle given the angle and adja
 **Returns:**
 - `float`: The length of the opposite side
 
-### radius_to_appothem
+### radius_to_apothem
 
 ```python
-def radius_to_appothem(radius: float, side_count: int = 6) -> float
+def radius_to_apothem(radius: float, side_count: int = 6) -> float
 ```
 
 **Arguments:**
 - `radius` (float): the radius of the polygon
-- `side_count` (float): the number of sides of the polygon
+- `side_count` (int): the number of sides of the polygon
 
 **Returns:**
 - `float`: The apothem of the polygon
@@ -112,7 +112,7 @@ DiamondCylinder(
     radius: float,
     height: float,
     arc_size: float = 360,
-    stretch: tuple = (1, 1, 1),
+    stretch: tuple[float, float, float] = (1, 1, 1),
     rotation: RotationLike = (0, 0, 0),
     align: Align | tuple[Align, Align, Align] | None = None,
     mode: Mode = Mode.ADD,
@@ -123,7 +123,7 @@ DiamondCylinder(
 - `radius` (float): The radius of the circumscribed circle
 - `height` (float): The height of the extrusion
 - `arc_size` (float, default=360): Angular sweep in degrees for the circular clipping sector used to intersect the base profile
-- `stretch` (tuple, default=(1, 1, 1)): Scaling factors (X, Y, Z)
+- `stretch` (tuple[float, float, float], default=(1, 1, 1)): Scaling factors (X, Y, Z)
 - `rotation` (RotationLike, default=(0, 0, 0)): Rotation angles (X, Y, Z) in degrees
 - `align` (Align | tuple[Align, Align, Align] | None, default=None): Alignment along X, Y, Z axes
 - `mode` (Mode, default=Mode.ADD): Boolean combination mode
@@ -145,7 +145,7 @@ Creates a torus by sweeping a diamond (square rotated 45°) along a circular pat
 DiamondTorus(
     major_radius: float, 
     minor_radius: float, 
-    stretch: tuple = (1, 1)
+    stretch: tuple[float, float] = (1, 1)
 )
 ```
 
@@ -154,7 +154,7 @@ Creates a torus by sweeping a diamond (square rotated 45°) along a circular pat
 **Arguments:**
 - `major_radius` (float): The radius of the circular sweep path
 - `minor_radius` (float): The radius of the diamond cross-section
-- `stretch` (tuple, default=(1, 1)): Scaling factors for the diamond shape
+- `stretch` (tuple[float, float], default=(1, 1)): Scaling factors for the diamond shape
 - `rotation` (RotationLike, optional): angles to rotate about axes. Defaults to (0, 0, 0)
 - `align` (Align | tuple[Align, Align, Align] | None, optional): align MIN, CENTER,
         or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
@@ -175,7 +175,7 @@ PolygonalCylinder(
     height: float,
     side_count: int = 6,
     arc_size: float = 360,
-    stretch: tuple = (1, 1, 1),
+    stretch: tuple[float, float, float] = (1, 1, 1),
     rotation: RotationLike = (0, 0, 0),
     align: Align | tuple[Align, Align, Align] | None = None,
     mode: Mode = Mode.ADD,
@@ -188,7 +188,7 @@ PolygonalCylinder(
 - `height` (float): The height of the extrusion
 - `side_count` (int, default=6): Number of sides of the polygon
 - `arc_size` (float, default=360): Angular sweep in degrees for the circular clipping sector used to intersect the base profile
-- `stretch` (tuple, default=(1, 1, 1)): Scaling factors (X, Y, Z)
+- `stretch` (tuple[float, float, float], default=(1, 1, 1)): Scaling factors (X, Y, Z)
 - `rotation` (RotationLike, default=(0, 0, 0)): Angles to rotate about axes
 - `align` (Align | tuple[Align, Align, Align] | None, default=None): Align MIN, CENTER, or MAX on each axis
 - `mode` (Mode, default=Mode.ADD): Boolean combination mode

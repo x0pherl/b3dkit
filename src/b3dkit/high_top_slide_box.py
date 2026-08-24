@@ -43,7 +43,7 @@ def _slide_top_rail_cut(
     wall_thickness: float,
     rail_angle: float = 0,
     effective_tolerance: float = 0.05,
-):
+) -> Part:
     """
     Creates the rail cut geometry for the sliding mechanism of a high top slide box.
 

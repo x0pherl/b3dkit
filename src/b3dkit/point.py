@@ -41,11 +41,15 @@ class Point:
             - float: The y coordinate of the point"""
         return self.y
 
-    def __init__(self, x: Union[float, list[float, float]] = None, y: float = None):
+    def __init__(
+        self,
+        x: Union[float, list[float], None] = None,
+        y: Union[float, None] = None,
+    ):
         """initialize the point with x and y coordinates passed as a tuple or individual values
         ----------
         Arguments:
-            - x: Union[float, list[float, float]]
+            - x: Union[float, list[float], None]
                 The x coordinate or a list containing [x, y] coordinates
             - y: float
                 The y coordinate (ignored if x is a list)"""
@@ -63,7 +67,7 @@ class Point:
         yield self.x
         yield self.y
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> float:
         """return the x or y coordinate of the point
         ----------
         Arguments:

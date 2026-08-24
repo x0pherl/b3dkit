@@ -38,7 +38,7 @@ class BallMount(BasePartObject):
         rotation: RotationLike = (0, 0, 0),
         align: Union[None, Align, tuple[Align, Align, Align]] = None,
         mode: Mode = Mode.ADD,
-    ) -> Part:
+    ):
         """
         Creates a ball mount component for a ball-and-socket joint system.
 
