@@ -8,7 +8,7 @@ from pathlib import Path
 
 from build123d import Axis, BuildPart, Box, Align, Plane, fillet, section
 
-from b3dkit.slide_box import slide_box, slider_template
+from b3dkit.slide_box import slide_box, _slider_template
 
 
 class TestSlideBox:
@@ -58,10 +58,10 @@ class TestSliderDivots:
     @staticmethod
     def _divot_solids(sketch, wall, radius, tolerance):
         """the geometry the divots add to an otherwise identical template"""
-        with_divots = slider_template(
+        with_divots = _slider_template(
             sketch, wall, tolerance=tolerance, divot_radius=radius, cut_template=True
         )
-        without_divots = slider_template(
+        without_divots = _slider_template(
             sketch, wall, tolerance=tolerance, divot_radius=0, cut_template=True
         )
         return (with_divots - without_divots).solids()

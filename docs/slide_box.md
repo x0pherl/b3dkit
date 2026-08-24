@@ -64,34 +64,6 @@ Creates only the sliding lid component of the box. This is useful when you need 
 **Returns:**
 - `Part`: The sliding lid part with taper and optional thumb grip
 
-### slider_template
-
-```python
-def slider_template(
-    sketch: Sketch,
-    wall_thickness: float = 2,
-    tolerance: float = 0.2,
-    top_offset: float = 0,
-    x_straighten_distance: float = 0,
-    divot_radius: float = 0,
-    cut_template: bool = True,
-) -> Part
-```
-
-Creates a slider template part based on a 2D sketch. This is an internal function used to generate the sliding mechanism geometry.
-
-**Arguments:**
-- `sketch` (Sketch): 2D sketch defining the slider cross-section
-- `wall_thickness` (float, default=2): Thickness of the walls
-- `tolerance` (float, default=0.2): Clearance for the sliding fit
-- `top_offset` (float, default=0): Vertical offset from the top
-- `x_straighten_distance` (float, default=0): Distance for straight sections at edges
-- `divot_radius` (float, default=0): Radius of divots
-- `cut_template` (bool, default=True): Whether this is for cutting (True) or building (False)
-
-**Returns:**
-- `Part`: The slider template part
-
 ## Design Principles
 
 ### Tapered Sliding Mechanism

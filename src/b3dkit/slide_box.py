@@ -73,7 +73,7 @@ def _divot_spacing(
     )
 
 
-def slider_template(
+def _slider_template(
     sketch: Sketch,
     wall_thickness: float = 2,
     tolerance=0.2,
@@ -153,7 +153,7 @@ def slide_lid(
     cross_section = section(
         obj=part, section_by=Plane.XY.offset(part.bounding_box().max.Z - top_offset)
     )
-    lid_template = slider_template(
+    lid_template = _slider_template(
         cross_section,
         wall_thickness,
         tolerance=tolerance,
@@ -212,7 +212,7 @@ def slide_box(
     cross_section = section(
         obj=part, section_by=Plane.XY.offset(part.bounding_box().max.Z - top_offset)
     )
-    lid_cut_template = slider_template(
+    lid_cut_template = _slider_template(
         cross_section,
         wall_thickness,
         tolerance=0,
