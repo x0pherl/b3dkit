@@ -406,6 +406,13 @@ def subpart_outline(
             allowing for the correct tolerances for the section
     """
     if style == DovetailStyle.SNUGTAIL:
+        # NOTE: depth_ratio is deliberately NOT forwarded to snugtail. Commit f6c4b7b
+        # ("changes to proportions after physical prototyping") rewrote snugtail's depth
+        # model -- tail_depth was halved throughout and depth_ratio was removed from the
+        # cut_length formulas outright -- so the parameter no longer means the same thing
+        # it does for TRADITIONAL/T_SLOT. snugtail_subpart_outline keeps its own
+        # prototyped default (0.15). Forwarding it here would change the geometry of every
+        # snugtail joint. This is not an oversight; do not "fix" it.
         return snugtail_subpart_outline(
             start=start,
             end=end,
@@ -667,6 +674,11 @@ def subpart_divots(
             click_fit_radius=click_fit_radius,
         )
     else:
+        # NOTE: these ratios are intentionally literal and independent of the joint's
+        # depth_ratio/length_ratio. They position the click-fit divots, not the tail, and
+        # have been fixed at these values since d4a42a9 ("fully integrated snugtail and
+        # traditional dovetails"). The TRADITIONAL branch above forwards the joint ratios
+        # because its divots scale with the tail; snugtail's do not. Do not "fix" this.
         return snugtail_divots(
             subpart=subpart,
             start=start,
@@ -697,11 +709,34 @@ def subpart_section(
     slot_count: int = 1,
     depth: float = 2,
     linear_offset: float = 0,
-    tail_angle_offset: float = 20,
+    tail_angle_offset: float = 15,
     length_ratio: float = 1 / 3,
     depth_ratio: float = 1 / 6,
     straighten_dovetail: bool = False,
 ) -> Part:
+    """
+    lofts one Z-slab of a subpart between two Z heights, from the outline at each height
+
+    Every shaping argument must be forwarded to both subpart_outline calls -- the floor
+    outline and the top outline have to describe the same joint or the loft between them
+    is wrong. Historical note: b079844 extracted this helper out of dovetail_subpart and
+    declared linear_offset, tail_angle_offset, length_ratio and depth_ratio here without
+    passing them through, which silently disabled all four for every caller.
+
+    args:
+        - start: the start point along the XY Plane for the dovetail line
+        - end: the end point along the XY Plane for the dovetail line
+        - max_dimension: the maximum dimension of the part being split, used to size the outline
+        - section: the section of the dovetail to create (DovetailPart.TAIL or DovetailPart.SOCKET)
+        - style: the dovetail style; determines which shaping arguments apply
+        - floor_z / top_z: the Z heights of the bottom and top outlines, in mm
+        - floor_taper_distance / top_taper_distance: taper shrink applied at each height
+        - floor_scarf_offset / top_scarf_offset: scarf shift applied at each height
+        - tolerance: the tolerance for the split, in mm
+        - slot_count, depth: T_SLOT shaping
+        - linear_offset, tail_angle_offset, length_ratio, depth_ratio: tail shaping
+        - straighten_dovetail: draw the straight line of the cut rather than the joint profile
+    """
     with BuildPart() as intersect:
         with BuildSketch(Plane.XY.offset(floor_z)):
             with BuildLine() as baseline:
@@ -716,6 +751,10 @@ def subpart_section(
                         taper_distance=floor_taper_distance,
                         slot_count=slot_count,
                         depth=depth,
+                        linear_offset=linear_offset,
+                        tail_angle_offset=tail_angle_offset,
+                        length_ratio=length_ratio,
+                        depth_ratio=depth_ratio,
                         scarf_offset=floor_scarf_offset,
                         straighten_dovetail=straighten_dovetail,
                     )
@@ -734,6 +773,10 @@ def subpart_section(
                         taper_distance=top_taper_distance,
                         slot_count=slot_count,
                         depth=depth,
+                        linear_offset=linear_offset,
+                        tail_angle_offset=tail_angle_offset,
+                        length_ratio=length_ratio,
+                        depth_ratio=depth_ratio,
                         scarf_offset=top_scarf_offset,
                         straighten_dovetail=straighten_dovetail,
                     )
@@ -770,12 +813,18 @@ def dovetail_subpart(
         - end: the end point along the XY Plane for the dovetail line
         - section: the section of the dovetail to create (DovetailPart.TAIL or DovetailPart.SOCKET)
         - style: create a traditional dovetal or a cut that wraps around 3 sides of the object and creates a tighter fit
-        - linear_offset: offsets the center of the tail or socket along the line by the ammount specified
-        - tolerance: the tolerance for the split
-        - tail_angle_offset: the adjustment pitch of angle of the dovetail (0 will result in a square dovetail)
+        - linear_offset: offsets the center of the tail or socket along the line by the ammount specified.
+            TRADITIONAL only; slides the joint along the cut without changing its volume
+        - tolerance: the tolerance for the split, in mm
+        - tail_angle_offset: the adjustment pitch of angle of the dovetail (0 will result in a square dovetail),
+            in degrees. TRADITIONAL and SNUGTAIL only
         - taper_angle: an extra shrinking factor for the dovetail size, allows for easier assembly
-        - length_ratio: the ratio of the length of the tongue to the total length of the dovetail
-        - depth_ratio: the ratio of the depth of the tongue to the total length of the dovetail
+        - length_ratio: the ratio of the length of the tongue to the total length of the dovetail.
+            TRADITIONAL and SNUGTAIL only
+        - depth_ratio: the ratio of the depth of the tongue to the total length of the dovetail.
+            TRADITIONAL only -- SNUGTAIL keeps its own prototyped 0.15, see subpart_outline
+        - slot_count: the number of slots to add. T_SLOT only
+        - depth: the depth of the T-slot into the socket, in mm. T_SLOT only
         - scarf_angle: setting this to a non-zero value will tilt the dovetail along the Z axis which may improve part stability
         - vertical_offset: offsets the dovetail along the Z axis by the ammount specified, which results in a straight line
             cut on one side, and provides a hard stop for fitting. A positive number results in a straight cut on the bottom
@@ -839,6 +888,9 @@ def dovetail_subpart(
                     tolerance=tolerance,
                     slot_count=slot_count,
                     depth=depth,
+                    tail_angle_offset=tail_angle_offset,
+                    length_ratio=length_ratio,
+                    depth_ratio=depth_ratio,
                     straighten_dovetail=True,
                 )
             )

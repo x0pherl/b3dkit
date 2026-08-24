@@ -1,81 +1,122 @@
 # Dovetail
 
-# dovetail_subpart Function Documentation
-
 ## Overview
 
-Dovetail is intended for breaking large parts into a dovetail and socketed part that can be easily fitted together with very tight and precice tolerances. This might be useful, for example, when designed parts that cannot fit onto common 3d-printer beds, and must be broken into multiple parts.
+Dovetail is intended for breaking large parts into a dovetail and socketed part that can be easily fitted together with very tight and precise tolerances. This might be useful, for example, when designing parts that cannot fit onto common 3d-printer beds, and must be broken into multiple parts.
 
 ![example of a part split into a dovetail and a socket](dovetail.png)
 
-The `dovetail_subpart` function takes a build123d part and necessary parameters to break it into either the dovetail or the socket component of the split.
+The `dovetail_subpart` function takes a build123d part and the necessary parameters to break it into either the dovetail or the socket component of the split. Call it twice with the same arguments, changing only `section`, to produce a mating pair.
+
+All linear dimensions are in millimeters and all angles are in degrees.
+
+## Terminology
+
+- **subpart** — one of the two pieces produced by splitting a part. This is what `dovetail_subpart` returns.
+- **tail** — the subpart carrying the protruding tongue (`DovetailPart.TAIL`).
+- **socket** — the subpart carrying the matching recess (`DovetailPart.SOCKET`).
+- **`section`** — the *argument* used to select which subpart you want. It names the selector, not the result.
+
+The two subparts are not equal halves: the tongue belongs to the tail, and for `SNUGTAIL` the joint wraps around three sides, so the socket is typically several times the volume of the tail.
+
+## Styles
+
+`style` selects the joint geometry, and **it determines which of the other arguments have any effect**:
+
+- `DovetailStyle.SNUGTAIL` *(default)* — an updated design for 3d printing that wraps around three sides of the object for a tighter fit and a large glue/friction surface.
+- `DovetailStyle.TRADITIONAL` — a traditional woodworking dovetail.
+- `DovetailStyle.T_SLOT` — a T-shaped tail, sized by slot count and depth rather than by tongue ratios.
 
 ## Arguments
 
-- `spart` (Part): The part to split into a dovetail or socket part. The part should be oriented along the XY plane.
+### Always applicable
+
+- `part` (Part): The part to split into a dovetail or socket part. The part should be oriented along the XY plane.
 - `start` (Point): The start point along the XY Plane for the dovetail line.
 - `end` (Point): The end point along the XY Plane for the dovetail line.
-- `section` (DovetailPart, default=DovetailPart.TAIL): The section of the dovetail to create (DovetailPart.TAIL or DovetailPart.SOCKET).
-- `style` The dovetail style, either TRADITIONAL (a traditional woodworking dovetail), SNUGTAIL (an updated design for 3d printing), or T_SLOT (a T-shaped tail).
-- `linear_offset` (float, default=0): Offsets the center of the tail or socket along the line by the amount specified.
-- `tolerance` (float, default=0.05): The tolerance for the split.
-- `vertical_tolerance` Additional tolerance for vertical offset, given that in printing supports or bridging introduce additional volume.
-- `slot_count` Only used when the sytle is `T_SLOT`. The number of slots to be added.
-- `depth` Only used when the tsyle is `T_SLOT`. The depth of the T-slot into the socket.
+- `section` (DovetailPart, default=`DovetailPart.TAIL`): Which subpart to create — `DovetailPart.TAIL` or `DovetailPart.SOCKET`.
+- `style` (DovetailStyle, default=`DovetailStyle.SNUGTAIL`): The dovetail style. See [Styles](#styles).
+- `tolerance` (float, default=0.025): The clearance between tail and socket, in mm.
+- `vertical_tolerance` (float, default=0.2): Additional tolerance for vertical offset, given that in printing, supports or bridging introduce additional volume.
 - `scarf_angle` (float, default=0): Places the entire cut and dovetail at an angle along the Z-axis. Likely to improve stability in some parts.
-- `tail_angle_offset` Only used when the style is `TRADITIONAL`. The adjustment pitch of angle of the dovetail (0 will result in a square dovetail).
-- `taper_angle` This tapers the dovetail by the given angle. Even a small taper angle can allow for easier assembly.
-- `length_ratio` Only used when the style is `TRADITIONAL`. The ratio of the length of the tongue to the total length of the object being cut. Defaults to 1/3.
-- `depth_ratio` Only used when the style is `TRADITIONAL`. The ratio of the length of the tongue to the total length of the dovetail.
-- `vertical_offset` The vertical offset of the dovetail.
-- `click_fit_radius` The radius of the click-fit divots.
+- `taper_angle` (float, default=0): Tapers the dovetail by the given angle. Even a small taper angle can allow for easier assembly.
+- `vertical_offset` (float, default=0): Offsets the dovetail along the Z axis, producing a straight cut on one side that acts as a hard stop when fitting. A positive value gives a straight cut on the bottom of the part, a negative value on the top.
+- `click_fit_radius` (float, default=0): The radius of the click-fit divots. `0` disables them.
+
+### Style-conditional
+
+The table below reflects what each parameter actually changes. Passing a parameter to a style that does not use it is currently accepted and silently ignored.
+
+| Argument | Default | TRADITIONAL | SNUGTAIL | T_SLOT |
+|---|---|---|---|---|
+| `length_ratio` | 1/3 | ✅ | ✅ | — |
+| `depth_ratio` | 1/6 | ✅ | — (see below) | — |
+| `tail_angle_offset` | 15 | ✅ | ✅ | — |
+| `linear_offset` | 0 | ✅ | — | — |
+| `slot_count` | 1 | — | — | ✅ |
+| `depth` | 2 | — | — | ✅ |
+
+- `length_ratio` (float, default=1/3): The ratio of the length of the tongue to the total length of the cut.
+- `depth_ratio` (float, default=1/6): The ratio of the depth of the tongue to the total length of the cut.
+- `tail_angle_offset` (float, default=15): The adjustment pitch of the angle of the dovetail. `0` results in a square dovetail.
+- `linear_offset` (float, default=0): Offsets the center of the tail or socket along the line by the amount specified. This slides the joint along the cut without changing its volume.
+- `slot_count` (int, default=1): The number of slots to be added.
+- `depth` (float, default=2): The depth of the T-slot into the socket.
+
+!!! note "`depth_ratio` and SNUGTAIL"
+
+    SNUGTAIL does not accept `depth_ratio` from `dovetail_subpart`; it uses its own
+    prototyped value of `0.15`. This is deliberate, not an oversight. The snugtail depth
+    model was rewritten after physical prototyping so that `depth_ratio` no longer means
+    what it means for TRADITIONAL, and forwarding the shared value would change the
+    geometry of every snugtail joint. `length_ratio` and `tail_angle_offset` *are*
+    honored for SNUGTAIL.
 
 ## Returns
 
-- `Part`: The modified subpart.
+- `Part`: The requested subpart — the tail or the socket, per `section`.
 
 ## Example
 
 ```python
-from b3dkit import dovetail_subpart, Point, DovetailPart
+from build123d import Align, Box, BuildPart, Mode
+from b3dkit import Point, DovetailPart, DovetailStyle, dovetail_subpart
 
-# Define the subpart, start and end points
 with BuildPart(mode=Mode.PRIVATE) as longbox:
     Box(50, 40, 50, align=(Align.CENTER, Align.CENTER, Align.MIN))
 
 start = Point(0, -20)
-end = Point(10, 20)
+end = Point(0, 20)
 
-# Create a dovetail subpart with default parameters
-modified_subpart = dovetail_subpart(subpart, start, end)
+# A mating pair with default parameters (SNUGTAIL).
+tail = dovetail_subpart(longbox.part, start, end, section=DovetailPart.TAIL)
+socket = dovetail_subpart(longbox.part, start, end, section=DovetailPart.SOCKET)
+```
 
-# Create a dovetail subpart with custom parameters
-socket_part = dovetail_subpart(
-    longbox.part,
-    start,
-    end,
-    section=DovetailPart.TAIL,
+Both subparts of a joint must be built from the same arguments — only `section` may
+differ. Any other divergence produces two subparts that are individually valid and do
+not fit together.
+
+```python
+# A traditional dovetail with custom proportions.
+joint = dict(
     style=DovetailStyle.TRADITIONAL,
-    linear_offset=1.0,
     tolerance=0.1,
     scarf_angle=5,
     taper_angle=2.0,
-    depth_ratio=1/4,
-    vertical_offset=0.5,
-    click_fit_radius=0.2
+    length_ratio=0.7,
+    depth_ratio=1 / 4,
+    click_fit_radius=0.2,
 )
 
-socket_part = socket_subpart(
-    longbox.part,
-    start,
-    end,
-    section=DovetailPart.SOCKET,
-    style=DovetailStyle.TRADITIONAL,
-    linear_offset=1.0,
-    tolerance=0.1,
-    scarf_angle=5,
-    taper_angle=2.0,
-    depth_ratio=1/4,
-    vertical_offset=0.5,
-    click_fit_radius=0.2
-)
+tail = dovetail_subpart(longbox.part, start, end, section=DovetailPart.TAIL, **joint)
+socket = dovetail_subpart(longbox.part, start, end, section=DovetailPart.SOCKET, **joint)
+```
+
+## Raises
+
+- `ValueError`: if `start` and `end` are the same point.
+- `ValueError`: if `abs(vertical_offset)` exceeds the part's height.
+- `ValueError`: if `vertical_offset` is negative and `taper_angle` is negative.
+- `ValueError`: if `vertical_offset` is positive and `taper_angle` is positive.
+- `ValueError`: for SNUGTAIL, if `length_ratio + depth_ratio` exceeds 1.

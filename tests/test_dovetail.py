@@ -227,3 +227,142 @@ class TestDovetail:
                     vertical_offset=0.5,
                 ),
             )
+
+
+def _split_box() -> Part:
+    """A fresh reference solid for split tests."""
+    with BuildPart(mode=Mode.PRIVATE) as test:
+        Box(40, 60, 30, align=(Align.CENTER, Align.CENTER, Align.MIN))
+    return test.part
+
+
+def _shape_signature(part: Part) -> tuple:
+    """Volume plus centroid/bbox, so translation-only changes are still detectable.
+
+    ``linear_offset`` slides the dovetail along the split line, which is
+    volume-preserving -- asserting on volume alone would report it as inert.
+    """
+    center = part.center()
+    bbox = part.bounding_box()
+    return (
+        part.volume,
+        center.X,
+        center.Y,
+        bbox.min.X,
+        bbox.max.X,
+        bbox.min.Y,
+        bbox.max.Y,
+    )
+
+
+def _subpart(**kwargs) -> Part:
+    return dovetail_subpart(
+        _split_box(), Point(-20, 0), Point(20, 0), **kwargs
+    )
+
+
+def _max_delta(a: tuple, b: tuple) -> float:
+    return max(abs(x - y) for x, y in zip(a, b))
+
+
+class TestDovetailParameterForwarding:
+    """Every documented knob must actually reach the outline that consumes it.
+
+    Regression coverage for the forwarding bug introduced in b079844 ("initial
+    T Slot dovetail support"), which extracted ``subpart_section`` out of
+    ``dovetail_subpart`` and declared ``linear_offset``, ``tail_angle_offset``,
+    ``length_ratio`` and ``depth_ratio`` on the new helper without ever passing
+    them to the inner ``subpart_outline`` calls. The parameters were accepted and
+    silently discarded, so ``dovetail.py`` held 100% line coverage while four
+    public knobs did nothing.
+    """
+
+    @pytest.mark.parametrize(
+        "style, param, value",
+        [
+            (DovetailStyle.TRADITIONAL, "length_ratio", 0.7),
+            (DovetailStyle.TRADITIONAL, "depth_ratio", 0.3),
+            (DovetailStyle.TRADITIONAL, "tail_angle_offset", 35),
+            (DovetailStyle.TRADITIONAL, "linear_offset", 6),
+            (DovetailStyle.SNUGTAIL, "length_ratio", 0.7),
+            (DovetailStyle.SNUGTAIL, "tail_angle_offset", 35),
+            (DovetailStyle.T_SLOT, "slot_count", 3),
+            (DovetailStyle.T_SLOT, "depth", 5),
+        ],
+    )
+    def test_parameter_changes_geometry(self, style, param, value):
+        baseline = _shape_signature(_subpart(style=style))
+        altered = _shape_signature(_subpart(style=style, **{param: value}))
+        assert _max_delta(baseline, altered) > 1e-6, (
+            f"{param} is inert for {style.name}: it is accepted but does not "
+            "affect the resulting geometry"
+        )
+
+
+class TestSnugtailDepthRatioDecoupling:
+    """``depth_ratio`` is deliberately withheld from snugtail. Do not "fix" this.
+
+    Commit 3ed5a50 forwarded ``depth_ratio`` to snugtail; three days later
+    f6c4b7b ("changes to proportions after physical prototyping") removed it
+    again as part of a coordinated retune that halved ``tail_depth`` throughout
+    and dropped ``depth_ratio`` out of snugtail's ``cut_length`` formulas
+    entirely. The parameter no longer means for snugtail what it means for
+    TRADITIONAL, and ``snugtail_subpart_outline`` keeps its own prototyped
+    default of 0.15.
+
+    These tests exist so that re-forwarding it fails loudly rather than silently
+    changing the geometry of every snugtail joint ever printed.
+    """
+
+    def test_depth_ratio_does_not_reach_snugtail(self, monkeypatch):
+        import b3dkit.dovetail as dovetail_module
+
+        received = []
+        original = dovetail_module.snugtail_subpart_outline
+
+        def spy(*args, **kwargs):
+            received.append(kwargs.get("depth_ratio"))
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(dovetail_module, "snugtail_subpart_outline", spy)
+        _subpart(style=DovetailStyle.SNUGTAIL, depth_ratio=0.3)
+
+        assert received, "snugtail_subpart_outline was never called"
+        assert all(value is None for value in received), (
+            "depth_ratio reached snugtail_subpart_outline; f6c4b7b deliberately "
+            "decoupled it after physical prototyping"
+        )
+
+    def test_snugtail_geometry_ignores_depth_ratio(self):
+        baseline = _shape_signature(_subpart(style=DovetailStyle.SNUGTAIL))
+        altered = _shape_signature(
+            _subpart(style=DovetailStyle.SNUGTAIL, depth_ratio=0.3)
+        )
+        assert _max_delta(baseline, altered) == pytest.approx(0, abs=1e-9)
+
+
+class TestDefaultGeometryUnchanged:
+    """Callers who pass no ratios must get byte-identical geometry to 0.1.5.
+
+    Reference volumes captured from the pre-fix tree at commit 180f92e. Fixing
+    the forwarding was only safe because every reachable default in the chain
+    already agreed (1/3, 1/6, 15, 0) -- snugtail's own 0.8 ``length_ratio``
+    default was unreachable through ``dovetail_subpart`` and stayed that way.
+    """
+
+    @pytest.mark.parametrize(
+        "style, section, expected_volume",
+        [
+            (DovetailStyle.SNUGTAIL, DovetailPart.TAIL, 9244.107505),
+            (DovetailStyle.SNUGTAIL, DovetailPart.SOCKET, 62680.650620),
+            (DovetailStyle.TRADITIONAL, DovetailPart.TAIL, 38288.043194),
+            (DovetailStyle.TRADITIONAL, DovetailPart.SOCKET, 33669.241040),
+            (DovetailStyle.T_SLOT, DovetailPart.TAIL, 35802.080480),
+            (DovetailStyle.T_SLOT, DovetailPart.SOCKET, 36162.080473),
+        ],
+    )
+    def test_default_volume_matches_pre_fix_reference(
+        self, style, section, expected_volume
+    ):
+        part = _subpart(style=style, section=section)
+        assert part.volume == pytest.approx(expected_volume, abs=1e-4)
