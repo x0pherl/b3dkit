@@ -24,6 +24,12 @@ from build123d import (
 from ocp_vscode import show, Camera
 
 
+__all__ = [
+    "BallMount",
+    "BallSocket",
+]
+
+
 class BallMount(BasePartObject):
 
     def __init__(

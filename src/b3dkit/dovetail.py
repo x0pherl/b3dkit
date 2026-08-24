@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from math import atan, atan2, degrees, radians, tan
+from math import radians, tan
 from typing import Tuple
 from build123d import (
     Align,
@@ -8,10 +8,8 @@ from build123d import (
     BuildPart,
     BuildSketch,
     Box,
-    Compound,
     Cylinder,
     FilletPolyline,
-    GridLocations,
     Line,
     Location,
     Mode,
@@ -20,8 +18,6 @@ from build123d import (
     PolarLocations,
     Polyline,
     add,
-    extrude,
-    fillet,
     loft,
     make_face,
 )
@@ -41,6 +37,13 @@ from b3dkit.point import (
 )
 
 from b3dkit.click_fit import Divot
+
+
+__all__ = [
+    "DovetailPart",
+    "DovetailStyle",
+    "dovetail_subpart",
+]
 
 
 class DovetailPart(Enum):

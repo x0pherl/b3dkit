@@ -13,7 +13,6 @@ from build123d import (
     BuildSketch,
     Circle,
     Mode,
-    Part,
     Plane,
     RotationLike,
     chamfer,
@@ -23,6 +22,11 @@ from build123d import (
 )
 
 from ocp_vscode import show, Camera
+
+
+__all__ = [
+    "Divot",
+]
 
 
 class Divot(BasePartObject):

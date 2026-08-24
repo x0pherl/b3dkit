@@ -4,9 +4,16 @@ Also has some utility functions for calculating various useful properties of poi
 """
 
 from dataclasses import dataclass
-from math import atan2, cos, degrees, radians, sin, tan
-from typing import Union, Tuple
+from math import atan2, cos, degrees, radians, sin
+from typing import Union
 from build123d import Axis
+
+
+__all__ = [
+    "Point",
+    "midpoint",
+    "shifted_midpoint",
+]
 
 
 @dataclass

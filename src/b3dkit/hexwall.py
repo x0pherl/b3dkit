@@ -35,7 +35,13 @@ from build123d import (
     thicken,
     tuplify,
 )
-from ocp_vscode import Camera, show
+from ocp_vscode import show
+
+
+__all__ = [
+    "HexWall",
+    "HexCylindrical",
+]
 
 
 class HexWall(BasePartObject):

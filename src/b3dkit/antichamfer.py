@@ -17,8 +17,13 @@ from build123d import (
     flatten_sequence,
     validate_inputs,
 )
-from math import atan, degrees, tan, radians
+from math import atan, degrees
 from ocp_vscode import show, Camera
+
+
+__all__ = [
+    "anti_chamfer",
+]
 
 
 def anti_chamfer(

@@ -19,7 +19,7 @@ from build123d import (
     pack,
 )
 from dataclasses import field
-from b3dkit.point import Point, midpoint
+from b3dkit.point import Point
 from b3dkit.basic_shapes import (
     DiamondCylinder,
     opposite_length,
@@ -27,6 +27,13 @@ from b3dkit.basic_shapes import (
 from b3dkit.click_fit import Divot
 
 from ocp_vscode import show, Camera
+
+
+__all__ = [
+    "high_top_slide_box_lid",
+    "high_top_slide_box_base",
+    "high_top_slide_box",
+]
 
 
 def _slide_top_rail_cut(

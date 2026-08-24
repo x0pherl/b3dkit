@@ -25,11 +25,17 @@ from build123d import (
 
 
 from ocp_vscode import show, Camera
-from b3dkit import Divot
+from b3dkit.click_fit import Divot
 
 #: the draft applied to the sliding faces; the divot placement below depends on
 #: this matching the taper passed to extrude()
-SLIDER_TAPER_ANGLE = 22.5
+_SLIDER_TAPER_ANGLE = 22.5
+
+
+__all__ = [
+    "slide_lid",
+    "slide_box",
+]
 
 
 def _divot_spacing(
@@ -56,7 +62,7 @@ def _divot_spacing(
         half_width
         - wall_thickness
         - abs(tolerance)
-        + widest_depth * tan(radians(SLIDER_TAPER_ANGLE))
+        + widest_depth * tan(radians(_SLIDER_TAPER_ANGLE))
     )
     return (
         min(
@@ -85,7 +91,7 @@ def slider_template(
         extrude(
             top_sketch.sketch,
             amount=-wall_thickness - abs(tolerance),
-            taper=-SLIDER_TAPER_ANGLE,
+            taper=-_SLIDER_TAPER_ANGLE,
         )
         cross_section = section(
             obj=slider_part.part,

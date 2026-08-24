@@ -5,7 +5,6 @@ capabilities with shapes and operations commonly used in 3D design.
 """
 
 from math import sqrt, radians, cos, sin, tan
-from tempfile import template
 from typing import Union
 
 from build123d import (
@@ -13,33 +12,20 @@ from build123d import (
     Axis,
     BasePartObject,
     BaseSketchObject,
-    Box,
     BuildLine,
     BuildPart,
     BuildSketch,
-    Builder,
     Circle,
-    Compound,
     Cylinder,
-    GridLocations,
     JernArc,
     Line,
-    Location,
     Locations,
     Mode,
-    Part,
-    Plane,
-    PolarLocations,
     RadiusArc,
     RegularPolygon,
     RotationLike,
-    Shape,
-    Sketch,
-    Sphere,
-    add,
     extrude,
     fillet,
-    loft,
     make_face,
     scale,
     sweep,
@@ -47,6 +33,22 @@ from build123d import (
     validate_inputs,
 )
 from ocp_vscode import Camera, show
+
+
+__all__ = [
+    "radius_to_apothem",
+    "apothem_to_radius",
+    "opposite_length",
+    "adjacent_length",
+    "distance_to_circle_edge",
+    "circular_intersection",
+    "DiamondTorus",
+    "RoundedCylinder",
+    "PolygonalCylinder",
+    "DiamondCylinder",
+    "Teardrop",
+    "TeardropCylinder",
+]
 
 
 def radius_to_apothem(radius: float, side_count: int = 6) -> float:

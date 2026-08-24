@@ -10,12 +10,10 @@ from build123d import (
     GridLocations,
     Location,
     Mode,
-    Part,
     Box,
     Plane,
     RegularPolygon,
     RotationLike,
-    add,
     extrude,
     loft,
     tuplify,
@@ -24,6 +22,16 @@ from build123d import (
 from b3dkit.antichamfer import anti_chamfer
 from b3dkit.basic_shapes import TeardropCylinder
 from ocp_vscode import show, Camera
+
+
+__all__ = [
+    "TeardropBoltCutSinkhole",
+    "BoltCutSinkhole",
+    "SquareNutSinkhole",
+    "NutCut",
+    "ScrewCut",
+    "HeatsinkCut",
+]
 
 
 class TeardropBoltCutSinkhole(BasePartObject):

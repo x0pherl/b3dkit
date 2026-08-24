@@ -21,8 +21,8 @@ license:
 """
 
 from dataclasses import dataclass
-from enum import Enum, Flag, auto
-from math import radians, cos, sin
+from enum import auto
+from math import sin
 from typing import Union
 
 from build123d import (
@@ -48,6 +48,12 @@ from build123d import (
 )
 
 from ocp_vscode import Camera, show
+
+
+__all__ = [
+    "TwistSnapConnector",
+    "TwistSnapSocket",
+]
 
 
 class TwistSnapConnector(BasePartObject):
