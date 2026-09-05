@@ -11,7 +11,6 @@ desc:
 """
 
 from math import sqrt
-from typing import Union
 
 from build123d import (
     Align,
@@ -37,7 +36,6 @@ from build123d import (
 )
 from ocp_vscode import show
 
-
 __all__ = [
     "HexWall",
     "HexCylindrical",
@@ -55,7 +53,7 @@ class HexWall(BasePartObject):
         wall_thickness: float,
         inverse: bool = False,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -112,7 +110,7 @@ class HexCylindrical(BasePartObject):
         thickness: float,
         z_distance: float,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """

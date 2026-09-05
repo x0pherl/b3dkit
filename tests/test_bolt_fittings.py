@@ -12,21 +12,21 @@ These tests cover all functions and their parameters to ensure:
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from unittest.mock import patch
+
 import pytest
 from build123d import (
-    Align,
-    Axis,
-    BuildPart,
     Part,
 )
+
 from b3dkit.bolt_fittings import (
-    TeardropBoltCutSinkhole,
-    ScrewCut,
-    NutCut,
     BoltCutSinkhole,
     HeatsinkCut,
+    NutCut,
+    ScrewCut,
     SquareNutSinkhole,
+    TeardropBoltCutSinkhole,
 )
+from conftest import module_path
 
 
 class TestTeardropBoltCutSinkhole:
@@ -211,5 +211,5 @@ class TestScrewCut:
 class TestBareExecution:
     def test_bare_execution(self):
         with (patch("ocp_vscode.show"),):
-            loader = SourceFileLoader("__main__", "src/b3dkit/bolt_fittings.py")
+            loader = SourceFileLoader("__main__", module_path("bolt_fittings"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

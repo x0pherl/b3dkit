@@ -1,19 +1,19 @@
-import pytest
-from unittest.mock import patch
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
-from math import atan, degrees
+from unittest.mock import patch
+
+import pytest
 from build123d import (
-    Align,
     Axis,
     Box,
     BuildPart,
     Cylinder,
     Face,
-    Part,
     Plane,
 )
+
 from b3dkit.antichamfer import anti_chamfer
+from conftest import module_path
 
 
 class TestAntiChamfer:
@@ -143,5 +143,5 @@ class TestAntiChamfer:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/b3dkit/antichamfer.py")
+            loader = SourceFileLoader("__main__", module_path("antichamfer"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

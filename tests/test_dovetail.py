@@ -1,23 +1,19 @@
-from dataclasses import dataclass, field
-from enum import Enum, auto
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
-import pytest
-import os
 from unittest.mock import patch
-from pathlib import Path
 
-from build123d import BuildPart, Box, Part, Sphere, Align, Mode, Location, add
-
-from b3dkit.point import Point
+import pytest
+from build123d import Align, Box, BuildPart, Mode, Part, add
 
 from b3dkit.dovetail import (
-    DovetailSubpart,
     DovetailStyle,
-    dovetail_subpart,
-    _snugtail_subpart_outline,
+    DovetailSubpart,
     _dovetail_subpart_outline,
+    _snugtail_subpart_outline,
+    dovetail_subpart,
 )
+from b3dkit.point import Point
+from conftest import module_path
 
 
 class TestDovetail:
@@ -31,7 +27,7 @@ class TestDovetail:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/b3dkit/dovetail.py")
+            loader = SourceFileLoader("__main__", module_path("dovetail"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
     def test_start_end_match(self):
@@ -256,13 +252,11 @@ def _shape_signature(part: Part) -> tuple:
 
 
 def _subpart(**kwargs) -> Part:
-    return dovetail_subpart(
-        _split_box(), Point(-20, 0), Point(20, 0), **kwargs
-    )
+    return dovetail_subpart(_split_box(), Point(-20, 0), Point(20, 0), **kwargs)
 
 
 def _max_delta(a: tuple, b: tuple) -> float:
-    return max(abs(x - y) for x, y in zip(a, b))
+    return max(abs(x - y) for x, y in zip(a, b, strict=True))
 
 
 class TestDovetailParameterForwarding:

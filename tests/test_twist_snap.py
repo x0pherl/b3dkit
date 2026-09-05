@@ -1,13 +1,12 @@
-import pytest
 from importlib.machinery import SourceFileLoader
-from importlib.util import spec_from_loader, module_from_spec
+from importlib.util import module_from_spec, spec_from_loader
 from unittest.mock import patch
-from pathlib import Path
 
 from b3dkit.twist_snap import (
     TwistSnapConnector,
     TwistSnapSocket,
 )
+from conftest import module_path
 
 
 class TestTwistSnap:
@@ -20,7 +19,7 @@ class TestTwistSnap:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/b3dkit/twist_snap.py")
+            loader = SourceFileLoader("__main__", module_path("twist_snap"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
     def test_twist_snap_connector(self):

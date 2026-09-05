@@ -20,18 +20,12 @@ license:
 
 """
 
-from dataclasses import dataclass
-from enum import auto
-from math import sin
-from typing import Union
-
 from build123d import (
     Align,
     Axis,
     BasePartObject,
     BuildPart,
     BuildSketch,
-    Compound,
     Cylinder,
     GeomType,
     Location,
@@ -46,9 +40,7 @@ from build123d import (
     sweep,
     tuplify,
 )
-
 from ocp_vscode import Camera, show
-
 
 __all__ = [
     "TwistSnapConnector",
@@ -69,7 +61,7 @@ class TwistSnapConnector(BasePartObject):
         wall_depth: float = 2,
         snapfit_height: float = 2,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -164,7 +156,7 @@ class TwistSnapSocket(BasePartObject):
         wall_depth: float = 2,
         snapfit_height: float = 2,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """

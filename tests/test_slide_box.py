@@ -1,14 +1,12 @@
-from dataclasses import dataclass, field
-from enum import Enum, auto
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
-import pytest
 from unittest.mock import patch
-from pathlib import Path
 
-from build123d import Axis, BuildPart, Box, Align, Plane, fillet, section
+import pytest
+from build123d import Align, Axis, Box, BuildPart, Plane, fillet, section
 
-from b3dkit.slide_box import slide_box, _slider_template
+from b3dkit.slide_box import _slider_template, slide_box
+from conftest import module_path
 
 
 class TestSlideBox:
@@ -33,7 +31,7 @@ class TestSlideBox:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/b3dkit/slide_box.py")
+            loader = SourceFileLoader("__main__", module_path("slide_box"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
 

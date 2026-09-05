@@ -1,0 +1,72 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install and test
+        run: |
+          python -m pip install --upgrade pip build
+          python -m pip install -e ".[dev]"
+          pytest -q
+
+      - name: Check the tag matches the packaged version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version=$(python -c "import re,pathlib;print(re.search(r'^version = \"([^\"]+)\"',pathlib.Path('pyproject.toml').read_text(),re.M).group(1))")
+          if [ "$tag" != "$version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match pyproject version $version"
+            exit 1
+          fi
+          echo "tag and version agree: $version"
+
+      - name: Build
+        run: python -m build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write        # required for PyPI Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  smoke-test:
+    # Install the published artifact from PyPI and build something, mirroring the
+    # post-upload check the retired build.sh performed by hand.
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Wait for PyPI to serve the new version
+        run: sleep 60
+      - name: Install from PyPI and build a part
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          python -m pip install --upgrade pip
+          python -m pip install "b3dkit==$version"
+          python -c "from b3dkit import Divot; assert Divot().is_valid; print('smoke test OK')"

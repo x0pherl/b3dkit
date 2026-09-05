@@ -1,8 +1,6 @@
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
 import pytest
-from math import radians, tan
 from build123d import Axis
+
 from b3dkit.point import Point, midpoint, shifted_midpoint
 
 

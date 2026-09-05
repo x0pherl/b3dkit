@@ -2,29 +2,28 @@ from math import radians, tan
 
 from build123d import (
     Align,
-    BuildPart,
+    Axis,
     Box,
-    add,
+    BuildPart,
+    BuildSketch,
     Color,
+    Compound,
+    Cylinder,
+    GridLocations,
+    Location,
+    Mode,
+    Part,
+    Plane,
+    Sketch,
+    add,
+    extrude,
     fillet,
     offset,
-    Mode,
-    Plane,
-    Part,
-    Location,
-    BuildSketch,
-    extrude,
-    Axis,
-    Cylinder,
     pack,
-    Compound,
     section,
-    GridLocations,
-    Sketch,
 )
+from ocp_vscode import Camera, show
 
-
-from ocp_vscode import show, Camera
 from b3dkit.click_fit import Divot
 
 #: the draft applied to the sliding faces; the divot placement below depends on
@@ -111,9 +110,7 @@ def _slider_template(
             # the template; keep it far enough back to meet only the underside
             divot_y = max(
                 sketch.bounding_box().min.Y + wall_thickness / 2,
-                slider_part.part.bounding_box().min.Y
-                + divot_radius
-                + divot_radius / 5,
+                slider_part.part.bounding_box().min.Y + divot_radius + divot_radius / 5,
             )
             with BuildPart(
                 Location((0, divot_y, -wall_thickness), (180, 0, 0)),

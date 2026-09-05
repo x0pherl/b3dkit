@@ -1,16 +1,18 @@
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from unittest.mock import patch
+
 import pytest
-from build123d import Box, BuildPart, Part, Align, Axis, fillet, Compound
+from build123d import Align, Axis, Box, BuildPart, Compound, Part, fillet
 
 from b3dkit.high_top_slide_box import (
-    high_top_slide_box,
-    high_top_slide_box_lid,
-    high_top_slide_box_base,
-    _slide_top_rail_cut,
     _high_top_slide_box_top,
+    _slide_top_rail_cut,
+    high_top_slide_box,
+    high_top_slide_box_base,
+    high_top_slide_box_lid,
 )
+from conftest import module_path
 
 
 class TestHighTopSlideBox:
@@ -275,9 +277,7 @@ class TestHighTopSlideBox:
                 else patch("builtins.open")
             ),
         ):
-            loader = SourceFileLoader(
-                "__main__", "src/b3dkit/high_top_slide_box.py"
-            )
+            loader = SourceFileLoader("__main__", module_path("high_top_slide_box"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
     def test_parameter_validation_edge_cases(self, small_base_part):

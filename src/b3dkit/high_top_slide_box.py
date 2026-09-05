@@ -8,26 +8,24 @@ from build123d import (
     Compound,
     GridLocations,
     Location,
+    Mode,
     Part,
     PolarLocations,
     Polyline,
-    Mode,
     add,
     extrude,
     fillet,
     make_face,
     pack,
 )
-from dataclasses import field
-from b3dkit.point import Point
+from ocp_vscode import Camera, show
+
 from b3dkit.basic_shapes import (
     DiamondCylinder,
     opposite_length,
 )
 from b3dkit.click_fit import Divot
-
-from ocp_vscode import show, Camera
-
+from b3dkit.point import Point
 
 __all__ = [
     "high_top_slide_box_lid",

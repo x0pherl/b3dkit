@@ -5,9 +5,8 @@ Also has some utility functions for calculating various useful properties of poi
 
 from dataclasses import dataclass
 from math import atan2, cos, degrees, radians, sin
-from typing import Union
-from build123d import Axis
 
+from build123d import Axis
 
 __all__ = [
     "Point",
@@ -43,8 +42,8 @@ class Point:
 
     def __init__(
         self,
-        x: Union[float, list[float], None] = None,
-        y: Union[float, None] = None,
+        x: float | list[float] | None = None,
+        y: float | None = None,
     ):
         """initialize the point with x and y coordinates passed as a tuple or individual values
         ----------

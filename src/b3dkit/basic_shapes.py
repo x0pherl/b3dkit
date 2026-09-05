@@ -4,8 +4,7 @@ and geometric calculations. These functions extend build123d's
 capabilities with shapes and operations commonly used in 3D design.
 """
 
-from math import sqrt, radians, cos, sin, tan
-from typing import Union
+from math import cos, radians, sin, sqrt, tan
 
 from build123d import (
     Align,
@@ -33,7 +32,6 @@ from build123d import (
     validate_inputs,
 )
 from ocp_vscode import Camera, show
-
 
 __all__ = [
     "radius_to_apothem",
@@ -144,7 +142,7 @@ class DiamondTorus(BasePartObject):
         minor_radius: float,
         stretch: tuple[float, float] = (1, 1),
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -185,7 +183,7 @@ class RoundedCylinder(BasePartObject):
         radius: float,
         height: float,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -226,7 +224,7 @@ class PolygonalCylinder(BasePartObject):
         arc_size: float = 360,
         stretch: tuple[float, float, float] = (1, 1, 1),
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -272,7 +270,7 @@ class DiamondCylinder(PolygonalCylinder):
         arc_size: float = 360,
         stretch: tuple[float, float, float] = (1, 1, 1),
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -306,7 +304,7 @@ class Teardrop(BaseSketchObject):
         radius: float,
         peak_distance: float,
         rotation: RotationLike = (0, 0),
-        align: Union[None, Align, tuple[Align, Align]] = None,
+        align: None | Align | tuple[Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -355,7 +353,7 @@ class TeardropCylinder(BasePartObject):
         height: float,
         peak_distance: float,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """

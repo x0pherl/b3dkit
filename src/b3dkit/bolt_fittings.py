@@ -1,8 +1,8 @@
-from typing import Union
 from build123d import (
     Align,
     Axis,
     BasePartObject,
+    Box,
     BuildPart,
     BuildSketch,
     Circle,
@@ -10,7 +10,6 @@ from build123d import (
     GridLocations,
     Location,
     Mode,
-    Box,
     Plane,
     RegularPolygon,
     RotationLike,
@@ -19,10 +18,10 @@ from build123d import (
     tuplify,
     validate_inputs,
 )
+from ocp_vscode import Camera, show
+
 from b3dkit.antichamfer import anti_chamfer
 from b3dkit.basic_shapes import TeardropCylinder
-from ocp_vscode import show, Camera
-
 
 __all__ = [
     "TeardropBoltCutSinkhole",
@@ -46,7 +45,7 @@ class TeardropBoltCutSinkhole(BasePartObject):
         extension_distance: float = 100,
         teardrop_ratio: float = 1.1,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -116,7 +115,7 @@ class BoltCutSinkhole(TeardropBoltCutSinkhole):
         chamfer_radius: float = 1,
         extension_distance: float = 100,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """create a cylindrical bolt hole with countersink
@@ -166,7 +165,7 @@ class SquareNutSinkhole(BasePartObject):
         nut_depth: float = 100,
         bolt_extension: float = 1,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """create a bolt hole with square nut trap
@@ -231,7 +230,7 @@ class NutCut(BasePartObject):
         shaft_radius: float = 2.1,
         shaft_length: float = 20,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -275,7 +274,7 @@ class ScrewCut(BasePartObject):
         shaft_length: float = 20,
         bottom_clearance: float = 20,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -322,7 +321,7 @@ class HeatsinkCut(BasePartObject):
         shaft_radius: float = 2.1,
         shaft_length: float = 20,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """

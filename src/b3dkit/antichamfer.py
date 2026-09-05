@@ -1,10 +1,12 @@
+from math import atan, degrees
+
 from build123d import (
     Align,
     Axis,
     BasePartObject,
     Box,
-    BuildPart,
     Builder,
+    BuildPart,
     Compound,
     Face,
     Iterable,
@@ -17,9 +19,7 @@ from build123d import (
     flatten_sequence,
     validate_inputs,
 )
-from math import atan, degrees
-from ocp_vscode import show, Camera
-
+from ocp_vscode import Camera, show
 
 __all__ = [
     "anti_chamfer",

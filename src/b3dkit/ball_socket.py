@@ -1,7 +1,8 @@
 from math import sqrt
-from typing import Union
 
 from build123d import (
+    Align,
+    Axis,
     BasePartObject,
     Box,
     BuildPart,
@@ -10,19 +11,15 @@ from build123d import (
     Cylinder,
     Location,
     Mode,
-    Part,
     Plane,
     PolarLocations,
     RotationLike,
     Sphere,
-    Align,
-    loft,
     fillet,
-    Axis,
+    loft,
     tuplify,
 )
-from ocp_vscode import show, Camera
-
+from ocp_vscode import Camera, show
 
 __all__ = [
     "BallMount",
@@ -36,7 +33,7 @@ class BallMount(BasePartObject):
         self,
         ball_radius: float,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -97,7 +94,7 @@ class BallSocket(BasePartObject):
         wall_thickness: float = 2,
         tolerance: float = 0.1,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """

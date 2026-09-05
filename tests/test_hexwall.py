@@ -2,12 +2,13 @@ from collections import defaultdict
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from math import atan2, cos, degrees, sin
-import pytest
 from unittest.mock import patch
 
-from build123d import Box, Cone, Cylinder, Align
+import pytest
+from build123d import Align, Box, Cone, Cylinder
 
-from b3dkit.hexwall import HexWall, HexCylindrical
+from b3dkit.hexwall import HexCylindrical, HexWall
+from conftest import module_path
 
 
 def _cone():
@@ -36,7 +37,7 @@ class TestHexWall:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/b3dkit/hexwall.py")
+            loader = SourceFileLoader("__main__", module_path("hexwall"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
 

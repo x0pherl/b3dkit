@@ -4,7 +4,6 @@ snap fit connector that is easier to assemble and slower to
 wear out than a simple half sphere.
 """
 
-from typing import Union
 from build123d import (
     Align,
     Axis,
@@ -20,9 +19,7 @@ from build123d import (
     loft,
     tuplify,
 )
-
-from ocp_vscode import show, Camera
-
+from ocp_vscode import Camera, show
 
 __all__ = [
     "Divot",
@@ -37,7 +34,7 @@ class Divot(BasePartObject):
         positive: bool = True,
         extend_base: bool = False,
         rotation: RotationLike = (0, 0, 0),
-        align: Union[None, Align, tuple[Align, Align, Align]] = None,
+        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """Part Object: Divot

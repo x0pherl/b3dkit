@@ -1,11 +1,13 @@
+import math
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from unittest.mock import patch
-import math
+
 import pytest
 from build123d import Part
 
 from b3dkit.ball_socket import BallMount, BallSocket
+from conftest import module_path
 
 
 # ---------- Helpers ----------
@@ -101,5 +103,5 @@ class TestEdgeCases:
 class TestDirectRun:
     def test_direct_run(self):
         with patch("ocp_vscode.show"):
-            loader = SourceFileLoader("__main__", "src/b3dkit/ball_socket.py")
+            loader = SourceFileLoader("__main__", module_path("ball_socket"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

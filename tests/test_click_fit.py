@@ -1,14 +1,9 @@
-from dataclasses import dataclass, field
-from enum import Enum, auto
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
-import pytest
 from unittest.mock import patch
-from pathlib import Path
-
-from build123d import BuildPart, Box, Part, Sphere, Align, Mode, Location
 
 from b3dkit.click_fit import Divot
+from conftest import module_path
 
 
 class TestClickfit:
@@ -33,5 +28,5 @@ class TestClickfit:
             patch("ocp_vscode.show"),
             patch("ocp_vscode.save_screenshot"),
         ):
-            loader = SourceFileLoader("__main__", "src/b3dkit/click_fit.py")
+            loader = SourceFileLoader("__main__", module_path("click_fit"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

@@ -1,0 +1,81 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        build123d: [latest]
+        include:
+          # One job pinned at the declared dependency floor. b3dkit 0.1.5 shipped
+          # code that could not run against its own advertised minimum; this job
+          # is what stops that from happening again.
+          - python-version: "3.12"
+            build123d: floor
+
+    name: py${{ matrix.python-version }} / build123d ${{ matrix.build123d }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Pin build123d to the declared floor
+        if: matrix.build123d == 'floor'
+        run: |
+          floor=$(python -c "import re,pathlib;print(re.search(r'build123d>=([0-9.]+)',pathlib.Path('pyproject.toml').read_text()).group(1))")
+          echo "Installing build123d==$floor"
+          python -m pip install "build123d==$floor"
+
+      - name: Show resolved versions
+        run: python -c "import sys,build123d;print(sys.version);print('build123d',build123d.__version__)"
+
+      - name: Run tests
+        run: pytest --cov=b3dkit --cov-report=term-missing --junitxml=junit.xml
+
+      - name: Fail if any test was skipped
+        # A green suite that silently skips is how the broken 0.10.0 floor reached
+        # PyPI: 27 tests were skipped and nothing complained.
+        if: always()
+        run: |
+          python - <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          suite = ET.parse("junit.xml").getroot()
+          skipped = sum(int(s.get("skipped", 0)) for s in suite.iter("testsuite"))
+          if skipped:
+              print(f"::error::{skipped} test(s) skipped; the skip budget is zero")
+              sys.exit(1)
+          print("No skipped tests.")
+          PY
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip ruff black
+      - run: ruff check .
+      - run: black --check .

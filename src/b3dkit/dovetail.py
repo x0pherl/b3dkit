@@ -1,13 +1,13 @@
 from enum import Enum, auto
 from math import radians, tan
-from typing import Tuple
+
 from build123d import (
     Align,
     Axis,
+    Box,
     BuildLine,
     BuildPart,
     BuildSketch,
-    Box,
     Cylinder,
     FilletPolyline,
     Line,
@@ -25,19 +25,18 @@ from build123d import (
 # it's a bad habit, but I keep some simple test code under __main__
 # to make creating test object easy -- this adds ".b3dkit" to the path
 if __name__ == "__main__":
-    import sys, os
+    import os
+    import sys
 
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+from b3dkit.click_fit import Divot
 from b3dkit.point import (
     Point,
     midpoint,
     shifted_midpoint,
 )
-
-from b3dkit.click_fit import Divot
-
 
 __all__ = [
     "DovetailSubpart",
@@ -153,7 +152,6 @@ def _snugtail_subpart_outline(
 
     cut_length = start.distance_to(end)
     tail_depth = cut_length * depth_ratio
-    tail_length = cut_length * length_ratio
 
     cut_start = toleranced_start_point
     cut_end = toleranced_end_point
@@ -211,7 +209,8 @@ def _snugtail_subpart_outline(
 
         FilletPolyline(
             *[cut_start, fin_join, start_fin],
-            radius=abs(dovetail_tolerance) * (3 if subpart == DovetailSubpart.TAIL else 2),
+            radius=abs(dovetail_tolerance)
+            * (3 if subpart == DovetailSubpart.TAIL else 2),
         )
         if straighten_dovetail:
             Line(start_fin, start_snugtail)
@@ -231,7 +230,8 @@ def _snugtail_subpart_outline(
             )
         FilletPolyline(
             *[start_snugtail, fin_connect, start_tail_line],
-            radius=abs(dovetail_tolerance) * (2 if subpart == DovetailSubpart.TAIL else 3),
+            radius=abs(dovetail_tolerance)
+            * (2 if subpart == DovetailSubpart.TAIL else 3),
         )
         if straighten_dovetail:
             Line(
@@ -258,7 +258,8 @@ def _snugtail_subpart_outline(
             )
         FilletPolyline(
             *[end_tail_line, fin_disconnect, end_snugtail],
-            radius=abs(dovetail_tolerance) * (2 if subpart == DovetailSubpart.TAIL else 3),
+            radius=abs(dovetail_tolerance)
+            * (2 if subpart == DovetailSubpart.TAIL else 3),
         )
         if straighten_dovetail:
             Line(end_snugtail, end_fin)
@@ -278,7 +279,8 @@ def _snugtail_subpart_outline(
             )
         FilletPolyline(
             *[end_fin, fin_depart, cut_end],
-            radius=abs(dovetail_tolerance) * (3 if subpart == DovetailSubpart.TAIL else 2),
+            radius=abs(dovetail_tolerance)
+            * (3 if subpart == DovetailSubpart.TAIL else 2),
         )
     return tail_line.line
 
@@ -600,7 +602,6 @@ def _snugtail_divots(
     click_fit_radius: float = 0,
 ) -> Part:
     part_width = start.distance_to(end)
-    tail_depth = part_width * depth_ratio
     direction_multiplier = -1 if subpart == DovetailSubpart.TAIL else 1
     inner_width = (
         part_width - (part_width * depth_ratio * 2) - (tolerance * direction_multiplier)
@@ -1024,7 +1025,7 @@ def _tslot_split_line(
 
     with BuildLine() as tslot_outline:
 
-        for slot_index in range(slot_count):
+        for _slot_index in range(slot_count):
             root_start = last_point.related_point(base_angle, next_distance)
             trunk_start = root_start.related_point(
                 base_angle, depth / 2 + dovetail_tolerance + taper_distance
@@ -1195,25 +1196,29 @@ def _dovetail_split_line(
             adjusted_start_point,
             tail_base_start,
             midpoint(tail_base_start, tail_end_start),
-            radius=abs(dovetail_tolerance) * (2 if subpart == DovetailSubpart.TAIL else 3),
+            radius=abs(dovetail_tolerance)
+            * (2 if subpart == DovetailSubpart.TAIL else 3),
         )
         FilletPolyline(
             midpoint(tail_base_start, tail_end_start),
             tail_end_start,
             midpoint(tail_end_start, tail_end),
-            radius=abs(dovetail_tolerance) * (3 if subpart == DovetailSubpart.TAIL else 2),
+            radius=abs(dovetail_tolerance)
+            * (3 if subpart == DovetailSubpart.TAIL else 2),
         )
         FilletPolyline(
             midpoint(tail_end_start, tail_end),
             tail_end,
             midpoint(tail_end, tail_base_resume),
-            radius=abs(dovetail_tolerance) * (3 if subpart == DovetailSubpart.TAIL else 2),
+            radius=abs(dovetail_tolerance)
+            * (3 if subpart == DovetailSubpart.TAIL else 2),
         )
         FilletPolyline(
             midpoint(tail_end, tail_base_resume),
             tail_base_resume,
             adjusted_end_point,
-            radius=abs(dovetail_tolerance) * (2 if subpart == DovetailSubpart.TAIL else 3),
+            radius=abs(dovetail_tolerance)
+            * (2 if subpart == DovetailSubpart.TAIL else 3),
         )
 
     return dovetail_outline.line
@@ -1255,7 +1260,7 @@ def _dovetail_split_line(
 #     show(spline, splines, reset_camera=Camera.KEEP)
 
 if __name__ == "__main__":
-    from ocp_vscode import show, Camera
+    from ocp_vscode import Camera, show
 
     with BuildPart(mode=Mode.PRIVATE) as test:
         Box(40, 200, 78.7, align=(Align.CENTER, Align.CENTER, Align.MIN))
@@ -1378,7 +1383,6 @@ if __name__ == "__main__":
     with BuildSketch() as sk:
         add(spline)
         make_face()
-    from build123d import export_stl
 
     show(
         tl,
