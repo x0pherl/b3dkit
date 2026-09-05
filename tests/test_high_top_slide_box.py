@@ -45,6 +45,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_high_top_slide_box_with_all_params(self, small_base_part):
         """Test high_top_slide_box with all parameters specified."""
@@ -63,6 +65,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_high_top_slide_box_lid(self, small_base_part):
         """Test high_top_slide_box_lid function."""
@@ -75,6 +79,7 @@ class TestHighTopSlideBox:
 
         assert isinstance(lid, Part)
         assert lid.is_valid
+        assert len(lid.solids()) == 1
         assert lid.label == "box top"
 
     def test_high_top_slide_box_lid_with_params(self, small_base_part):
@@ -92,6 +97,7 @@ class TestHighTopSlideBox:
 
         assert isinstance(lid, Part)
         assert lid.is_valid
+        assert len(lid.solids()) == 1
 
     def test_high_top_slide_box_base(self, small_base_part):
         """Test high_top_slide_box_base function."""
@@ -104,6 +110,7 @@ class TestHighTopSlideBox:
 
         assert isinstance(base, Part)
         assert base.is_valid
+        assert len(base.solids()) == 1
         assert base.label == "box bottom"
 
     def test_high_top_slide_box_base_with_params(self, small_base_part):
@@ -121,6 +128,7 @@ class TestHighTopSlideBox:
 
         assert isinstance(base, Part)
         assert base.is_valid
+        assert len(base.solids()) == 1
 
     def test_slide_top_rail_cut(self):
         """Test _slide_top_rail_cut internal function."""
@@ -160,6 +168,7 @@ class TestHighTopSlideBox:
 
         assert isinstance(top, Part)
         assert top.is_valid
+        assert len(top.solids()) == 1
         # The label is set on the BuildPart context, not the returned part
         assert hasattr(top, "label") or top.label == "" or top.label is None
 
@@ -175,6 +184,7 @@ class TestHighTopSlideBox:
 
         assert isinstance(top, Part)
         assert top.is_valid
+        assert len(top.solids()) == 1
 
     def test_dimensions_consistency(self, small_base_part):
         """Test that the dimensions of the created parts are consistent with input."""
@@ -219,6 +229,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_negative_tolerance(self, small_base_part):
         """Test with negative tolerance."""
@@ -234,6 +246,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_large_rail_angle(self, small_base_part):
         """Test with a larger rail angle."""
@@ -249,6 +263,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_minimal_dimensions(self):
         """Test with very small dimensions."""
@@ -266,6 +282,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_direct_run(self):
         """Test that the module can be run directly without errors."""
@@ -291,6 +309,8 @@ class TestHighTopSlideBox:
         )
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
         # Test with very small top height
         result = high_top_slide_box(
@@ -301,6 +321,8 @@ class TestHighTopSlideBox:
         )
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
         # Test with very small rail height
         result = high_top_slide_box(
@@ -311,11 +333,13 @@ class TestHighTopSlideBox:
         )
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_rectangular_base_part(self):
         """Test with a non-square rectangular base part."""
         with BuildPart() as rect_box:
-            Box(30, 15, 10, align=(Align.CENTER, Align.CENTER, Align.MIN))
+            Box(30, 15, 14, align=(Align.CENTER, Align.CENTER, Align.MIN))
 
         result = high_top_slide_box(
             base_part=rect_box.part,
@@ -328,6 +352,8 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
 
     def test_tall_base_part(self):
         """Test with a tall base part."""
@@ -345,3 +371,85 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert result.children[0].is_valid
         assert result.children[1].is_valid
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
+
+
+class TestHighTopSlideBoxValidation:
+    """Dimensions that cannot yield a single printable solid must be rejected.
+
+    Before validation existed, a part with too little material above the rails
+    silently produced a Compound of three solids: the lid plus two detached
+    divots. It reported ``is_valid`` on macOS OCCT and not on Linux, so the
+    defect surfaced only as a platform-dependent CI failure.
+    """
+
+    @staticmethod
+    def _box(width=30, depth=15, height=14):
+        with BuildPart() as part:
+            Box(width, depth, height, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        return part.part
+
+    def test_insufficient_headroom_raises(self):
+        # top_height + rail_height consumes the whole part, leaving nothing below
+        with pytest.raises(ValueError, match="must remain below the rails"):
+            high_top_slide_box(
+                base_part=self._box(height=10),
+                top_height=4,
+                rail_height=6,
+                wall_thickness=2,
+            )
+
+    def test_headroom_below_wall_thickness_raises(self):
+        # 1mm of headroom where wall_thickness is 2 -- the divots cannot fuse
+        with pytest.raises(ValueError, match="must remain below the rails"):
+            high_top_slide_box(
+                base_part=self._box(height=11),
+                top_height=4,
+                rail_height=6,
+                wall_thickness=2,
+            )
+
+    def test_headroom_equal_to_wall_thickness_is_accepted(self):
+        # exactly wall_thickness of headroom is the boundary and must build cleanly
+        result = high_top_slide_box(
+            base_part=self._box(height=12),
+            top_height=4,
+            rail_height=6,
+            wall_thickness=2,
+        )
+        assert len(result.children[0].solids()) == 1
+        assert len(result.children[1].solids()) == 1
+
+    def test_wall_thickness_too_large_raises(self):
+        with pytest.raises(ValueError, match="wall_thickness"):
+            high_top_slide_box(
+                base_part=self._box(width=30, depth=15),
+                top_height=4,
+                rail_height=6,
+                wall_thickness=8,
+            )
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            {"wall_thickness": 0},
+            {"rail_height": 0},
+            {"top_height": 0},
+        ],
+    )
+    def test_non_positive_dimensions_raise(self, kwargs):
+        params = {"top_height": 4, "rail_height": 6, "wall_thickness": 2, **kwargs}
+        with pytest.raises(ValueError, match="greater than 0"):
+            high_top_slide_box(base_part=self._box(), **params)
+
+    def test_lid_and_base_validate_too(self):
+        small = self._box(height=10)
+        with pytest.raises(ValueError, match="must remain below the rails"):
+            high_top_slide_box_lid(
+                base_part=small, top_height=4, rail_height=6, wall_thickness=2
+            )
+        with pytest.raises(ValueError, match="must remain below the rails"):
+            high_top_slide_box_base(
+                base_part=small, top_height=4, rail_height=6, wall_thickness=2
+            )

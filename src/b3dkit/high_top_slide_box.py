@@ -280,6 +280,39 @@ def _high_top_slide_box_top(
     return top.part
 
 
+def _validate_dimensions(
+    base_part: Part,
+    top_height: float,
+    rail_height: float,
+    wall_thickness: float,
+) -> None:
+    """Reject dimensions that cannot produce a single, printable solid.
+
+    Without the headroom check the divots have too little material to fuse into
+    and detach as free-floating slivers, yielding a Compound of three solids that
+    still reports is_valid on some OCCT builds.
+    """
+    bbox = base_part.bounding_box().size
+    if wall_thickness <= 0:
+        raise ValueError("wall_thickness must be greater than 0")
+    if rail_height <= 0:
+        raise ValueError("rail_height must be greater than 0")
+    if top_height <= 0:
+        raise ValueError("top_height must be greater than 0")
+    if wall_thickness * 2 >= min(bbox.X, bbox.Y):
+        raise ValueError(
+            f"wall_thickness ({wall_thickness}) is too large for a part measuring "
+            f"{bbox.X} x {bbox.Y}; it must be less than half the smaller dimension"
+        )
+    headroom = bbox.Z - top_height - rail_height
+    if headroom < wall_thickness:
+        raise ValueError(
+            f"top_height ({top_height}) + rail_height ({rail_height}) leaves "
+            f"{headroom} of a {bbox.Z} tall part; at least wall_thickness "
+            f"({wall_thickness}) must remain below the rails"
+        )
+
+
 def high_top_slide_box_lid(
     base_part: Part,
     top_height: float,
@@ -307,6 +340,7 @@ def high_top_slide_box_lid(
         - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
     """
+    _validate_dimensions(base_part, top_height, rail_height, wall_thickness)
     lid = _high_top_slide_box_top(
         base_part,
         top_height,
@@ -349,6 +383,7 @@ def high_top_slide_box_base(
         - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
     """
+    _validate_dimensions(base_part, top_height, rail_height, wall_thickness)
     part_width = base_part.bounding_box().size.X
     part_depth = base_part.bounding_box().size.Y
     part_height = base_part.bounding_box().size.Z
@@ -453,6 +488,7 @@ def high_top_slide_box(
         - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
     """
+    _validate_dimensions(base_part, top_height, rail_height, wall_thickness)
 
     return Compound(
         label="slide box",

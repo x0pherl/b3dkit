@@ -84,6 +84,17 @@ Creates only the base component of the box. This includes the hollowed-out inter
 **Returns:**
 - `Part`: The base part with hollowed interior and rail channels
 
+## Dimension requirements
+
+All three functions validate their inputs and raise `ValueError` if the part cannot be
+built as a single solid:
+
+- `top_height`, `rail_height` and `wall_thickness` must all be greater than 0.
+- `wall_thickness * 2` must be less than the smaller of the part's width and depth.
+- At least `wall_thickness` of the part's height must remain below the rails, i.e.
+  `part_height - top_height - rail_height >= wall_thickness`. With less than that, the
+  divots have too little material to fuse into and break away as separate solids.
+
 ## Design Considerations
 
 ### Rail System
