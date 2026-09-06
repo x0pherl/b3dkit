@@ -4,6 +4,8 @@ The names listed in ``__all__`` are b3dkit's public API; anything else is an
 implementation detail.
 """
 
+from importlib.metadata import PackageNotFoundError, version
+
 from b3dkit.antichamfer import anti_chamfer
 from b3dkit.ball_socket import BallMount, BallSocket
 from b3dkit.basic_shapes import (
@@ -39,6 +41,11 @@ from b3dkit.high_top_slide_box import (
 from b3dkit.point import Point, midpoint, shifted_midpoint
 from b3dkit.slide_box import slide_box, slide_lid
 from b3dkit.twist_snap import TwistSnapConnector, TwistSnapSocket
+
+try:
+    __version__ = version("b3dkit")
+except PackageNotFoundError:  # running from a source tree without an install
+    __version__ = "unknown"
 
 __all__ = [
     # antichamfer
