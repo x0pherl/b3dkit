@@ -1,3 +1,12 @@
+"""Sliding-lid boxes.
+
+The slide-box modules are **provisional**: they return a ``Compound`` of two
+parts rather than a single solid, which is unlike every other object in b3dkit,
+and the two modules solve the same problem with barely-overlapping arguments.
+They are exempt from the compatibility promise in ``__all__`` until that is
+settled.
+"""
+
 from math import radians, tan
 
 from build123d import (
@@ -6,7 +15,6 @@ from build123d import (
     Box,
     BuildPart,
     BuildSketch,
-    Color,
     Compound,
     Cylinder,
     GridLocations,
@@ -19,7 +27,6 @@ from build123d import (
     extrude,
     fillet,
     offset,
-    pack,
     section,
 )
 
@@ -201,7 +208,7 @@ def slide_box(
     top_offset: float = 0,
     thumb_radius: float = 5,
     x_straighten_distance: float = 0,
-    slide_tolerance: float = 0.15,
+    tolerance: float = 0.15,
     divot_radius: float = 0,
 ) -> Compound:
 
@@ -223,7 +230,7 @@ def slide_box(
         extrude(
             offset(
                 box_part.faces().sort_by(Axis.Z)[-1],
-                amount=-abs(slide_tolerance) - abs(wall_thickness - top_offset),
+                amount=-abs(tolerance) - abs(wall_thickness - top_offset),
             ),
             amount=-extrusion_height,
             mode=Mode.SUBTRACT,
@@ -237,20 +244,20 @@ def slide_box(
     lid = slide_lid(
         part,
         wall_thickness=wall_thickness,
-        tolerance=slide_tolerance,
+        tolerance=tolerance,
         top_offset=top_offset,
         thumb_radius=thumb_radius,
         x_straighten_distance=x_straighten_distance,
         divot_radius=divot_radius,
     )
     lid.label = "lid"
-    lid.color = Color("red")
 
-    box_assembly = Compound(
-        label="slide box", children=pack([box_part.part, lid], padding=5, align_z=True)
-    )
-
-    return box_assembly
+    # Print orientation stays -- laying the lid face-down is a manufacturing
+    # decision this library is entitled to make. Bed layout (pack) and viewer
+    # tint (Color) do not: they are presentation, and they made the returned
+    # geometry depend on how the caller intended to display it. Callers who want
+    # the parts laid out can pack() them.
+    return Compound(label="slide box", children=[box_part.part, lid])
 
 
 if __name__ == "__main__":

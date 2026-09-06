@@ -75,7 +75,6 @@ class TestHighTopSlideBox:
             wall_thickness=3,
             rail_angle=1.0,
             divot_radius=0.8,
-            thumb_radius=2.0,
             tolerance=0.15,
         )
 
@@ -106,7 +105,6 @@ class TestHighTopSlideBox:
             wall_thickness=1.5,
             rail_angle=0.5,
             divot_radius=0.6,
-            thumb_radius=1.5,
             tolerance=0.1,
         )
 
@@ -135,7 +133,6 @@ class TestHighTopSlideBox:
             wall_thickness=3,
             rail_angle=0.8,
             divot_radius=0.7,
-            thumb_radius=2.5,
             tolerance=0.2,
         )
 

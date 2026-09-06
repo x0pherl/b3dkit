@@ -18,7 +18,6 @@ def high_top_slide_box(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
 ) -> Compound
 ```
@@ -32,7 +31,6 @@ Creates a complete slide box with both the base and lid components. Returns a co
 - `wall_thickness` (float): Thickness of the box walls in millimeters
 - `rail_angle` (float, default=0): Angle of the rails in degrees for smoother sliding
 - `divot_radius` (float, default=0.5): Radius of positioning divots; set to 0 to disable
-- `thumb_radius` (float, default=0): Radius for thumb grips (currently unused)
 - `tolerance` (float, default=0.2): Clearance between moving parts in millimeters
 
 **Returns:**
@@ -48,7 +46,6 @@ def high_top_slide_box_lid(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
 ) -> Part
 ```
@@ -71,7 +68,6 @@ def high_top_slide_box_base(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
 ) -> Part
 ```

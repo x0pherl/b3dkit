@@ -17,12 +17,19 @@ def slide_box(
     top_offset: float = 0,
     thumb_radius: float = 5,
     x_straighten_distance: float = 0,
-    slide_tolerance: float = 0.15,
+    tolerance: float = 0.15,
     divot_radius: float = 0,
 ) -> Compound
 ```
 
 Creates a complete slide box with both the base and lid components. The lid features a tapered design for smooth sliding and secure positioning.
+
+Returns a `Compound` labelled `slide box` with two children, `box` and `lid`. The lid is returned in its print orientation (flipped face-down). The parts are co-located rather than laid out for a print bed; call build123d's `pack()` yourself if you want them arranged:
+
+```python
+from build123d import pack
+arranged = pack(slide_box(base_box.part).children, padding=5)
+```
 
 **Arguments:**
 - `part` (Part): The base part that defines the outer dimensions of the box
@@ -30,11 +37,11 @@ Creates a complete slide box with both the base and lid components. The lid feat
 - `top_offset` (float, default=0): Vertical offset from the top for the sliding section
 - `thumb_radius` (float, default=5): Radius of the thumb grip cutout in millimeters; set to 0 to disable
 - `x_straighten_distance` (float, default=0): Distance from edges where the taper becomes straight
-- `slide_tolerance` (float, default=0.15): Clearance between sliding parts in millimeters
+- `tolerance` (float, default=0.15): Clearance between sliding parts in millimeters
 - `divot_radius` (float, default=0): Radius of positioning divots; set to 0 to disable
 
 **Returns:**
-- `Compound`: A compound containing the base and lid parts positioned for display or printing
+- `Compound`: A compound labelled `slide box` with two children, `box` and `lid`, co-located and with the lid in print orientation
 
 ### slide_lid
 
@@ -81,7 +88,7 @@ The `x_straighten_distance` parameter controls how much of the sliding mechanism
 ## Design Considerations
 
 ### Tolerances
-The `slide_tolerance` parameter controls the fit between the lid and base:
+The `tolerance` parameter controls the fit between the lid and base:
 - **0.1mm**: Very tight fit, may require force to operate
 - **0.15mm**: Standard fit (default) - smooth operation with minimal play
 - **0.2-0.25mm**: Loose fit for rough printing or materials that swell
@@ -134,7 +141,7 @@ lid = box.children[1]
 precision_box = slide_box(
     part=base_box.part,
     wall_thickness=2.5,
-    slide_tolerance=0.1,  # Tight fit
+    tolerance=0.1,  # Tight fit
     thumb_radius=4,
     x_straighten_distance=3,  # Straight edges for consistent sliding
     divot_radius=0.3
@@ -152,7 +159,7 @@ with BuildPart() as large_base:
 storage_box = slide_box(
     part=large_base.part,
     wall_thickness=3,
-    slide_tolerance=0.2,  # Looser fit for large size
+    tolerance=0.2,  # Looser fit for large size
     thumb_radius=6,
     x_straighten_distance=8,  # More straightening for wide box
     divot_radius=0.8
@@ -231,13 +238,13 @@ lid_only = slide_lid(
 ## Troubleshooting
 
 ### Lid Won't Slide
-- **Check tolerance**: Increase `slide_tolerance` parameter
+- **Check tolerance**: Increase `tolerance` parameter
 - **Check for warping**: Ensure parts printed flat
 - **Sand lightly**: Remove any print artifacts from sliding surfaces
 - **Check straightening**: Increase `x_straighten_distance` if binding at edges
 
 ### Lid Too Loose
-- **Decrease tolerance**: Reduce `slide_tolerance` parameter
+- **Decrease tolerance**: Reduce `tolerance` parameter
 - **Check calibration**: Verify printer is properly calibrated
 - **Scale adjustment**: Consider scaling the lid up by 0.1-0.2%
 

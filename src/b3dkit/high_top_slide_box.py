@@ -1,3 +1,12 @@
+"""Sliding-lid boxes.
+
+The slide-box modules are **provisional**: they return a ``Compound`` of two
+parts rather than a single solid, which is unlike every other object in b3dkit,
+and the two modules solve the same problem with barely-overlapping arguments.
+They are exempt from the compatibility promise in ``__all__`` until that is
+settled.
+"""
+
 from build123d import (
     Align,
     Axis,
@@ -175,7 +184,6 @@ def _high_top_slide_box_top(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
     cut_template: bool = False,
 ) -> Part:
@@ -193,7 +201,6 @@ def _high_top_slide_box_top(
         - wall_thickness: the thickness of the box walls in millimeters
         - rail_angle: the angle of the rails in degrees for smoother sliding
         - divot_radius: the radius of positioning divots, set to 0 to disable
-        - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
         - cut_template: whether this is for cutting (True) or building the lid (False)
     """
@@ -275,7 +282,7 @@ def _high_top_slide_box_top(
                         positive=not cut_template,
                         extend_base=True,
                     )
-    top.part.label = "lid"
+    top.part.label = "box top"
     return top.part
 
 
@@ -319,7 +326,6 @@ def high_top_slide_box_lid(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
 ) -> Part:
     """
@@ -336,7 +342,6 @@ def high_top_slide_box_lid(
         - wall_thickness: the thickness of the box walls in millimeters
         - rail_angle: the angle of the rails in degrees for smoother sliding
         - divot_radius: the radius of positioning divots, set to 0 to disable
-        - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
     """
     _validate_dimensions(base_part, top_height, rail_height, wall_thickness)
@@ -347,7 +352,6 @@ def high_top_slide_box_lid(
         wall_thickness,
         rail_angle,
         divot_radius,
-        thumb_radius,
         tolerance,
         cut_template=False,
     )
@@ -362,7 +366,6 @@ def high_top_slide_box_base(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
 ) -> Part:
     """
@@ -379,7 +382,6 @@ def high_top_slide_box_base(
         - wall_thickness: the thickness of the box walls in millimeters
         - rail_angle: the angle of the rails in degrees for smoother sliding
         - divot_radius: the radius of positioning divots, set to 0 to disable
-        - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
     """
     _validate_dimensions(base_part, top_height, rail_height, wall_thickness)
@@ -429,7 +431,6 @@ def high_top_slide_box_base(
                     wall_thickness,
                     rail_angle,
                     divot_radius,
-                    thumb_radius,
                     tolerance,
                     cut_template=True,
                 )
@@ -466,7 +467,6 @@ def high_top_slide_box(
     wall_thickness: float,
     rail_angle: float = 0,
     divot_radius: float = 0.5,
-    thumb_radius: float = 0,
     tolerance: float = 0.2,
 ) -> Compound:
     """
@@ -484,7 +484,6 @@ def high_top_slide_box(
         - wall_thickness: the thickness of the box walls in millimeters
         - rail_angle: the angle of the rails in degrees for smoother sliding
         - divot_radius: the radius of positioning divots, set to 0 to disable
-        - thumb_radius: the radius for thumb grips (currently unused)
         - tolerance: the clearance between moving parts in millimeters
     """
     _validate_dimensions(base_part, top_height, rail_height, wall_thickness)
@@ -499,7 +498,6 @@ def high_top_slide_box(
                 wall_thickness=wall_thickness,
                 rail_angle=rail_angle,
                 divot_radius=divot_radius,
-                thumb_radius=thumb_radius,
                 tolerance=tolerance,
             ).rotate(Axis.X, 180),
             high_top_slide_box_base(
@@ -509,7 +507,6 @@ def high_top_slide_box(
                 wall_thickness=wall_thickness,
                 rail_angle=rail_angle,
                 divot_radius=divot_radius,
-                thumb_radius=thumb_radius,
                 tolerance=tolerance,
             ),
         ],
@@ -530,7 +527,6 @@ if __name__ == "__main__":
         wall_thickness=4,
         rail_angle=0.5,
         divot_radius=0.5,
-        thumb_radius=0,
         tolerance=0.1,
     )
     top = (
