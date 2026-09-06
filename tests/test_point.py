@@ -1,5 +1,7 @@
+from dataclasses import FrozenInstanceError
+
 import pytest
-from build123d import Axis
+from build123d import Axis, Vector
 
 from b3dkit.point import Point, midpoint, shifted_midpoint
 
@@ -145,3 +147,85 @@ class TestUtilityFunctions:
         # Shifted midpoint is (3, 4) + 1 * (0.6, 0.8) = (3.6, 4.8)
         assert shifted_mid.x == pytest.approx(3.6)
         assert shifted_mid.y == pytest.approx(4.8)
+
+
+class TestPointConstruction:
+    """A Point must be fully specified, and accept the forms build123d uses.
+
+    Previously ``Point((3, 4))`` produced ``Point(x=(3, 4), y=None)`` -- the
+    check was ``isinstance(x, list)``, so tuples, the form build123d itself uses
+    everywhere, fell through to the scalar branch. The failure surfaced much
+    later inside distance_to as a confusing TypeError.
+    """
+
+    @pytest.mark.parametrize(
+        "args", [(3, 4), ((3, 4),), ([3, 4],)], ids=["scalars", "tuple", "list"]
+    )
+    def test_accepted_forms_are_equivalent(self, args):
+        assert Point(*args) == Point(3, 4)
+
+    def test_tuple_is_not_mis_parsed(self):
+        assert Point((3, 4)).x == 3
+        assert Point((3, 4)).y == 4
+
+    def test_missing_y_raises(self):
+        with pytest.raises(TypeError, match="needs both an x and a y"):
+            Point(3)
+
+    def test_wrong_length_sequence_raises(self):
+        with pytest.raises(ValueError, match="exactly two coordinates"):
+            Point((1, 2, 3))
+
+    def test_sequence_plus_y_raises(self):
+        with pytest.raises(TypeError, match="not both"):
+            Point((1, 2), 5)
+
+
+class TestPointImmutability:
+    """Point is a value type: related_point and midpoint all return new Points."""
+
+    def test_cannot_assign(self):
+        point = Point(1, 2)
+        with pytest.raises(FrozenInstanceError):
+            point.x = 99
+
+    def test_hashable_and_equal_by_value(self):
+        assert hash(Point(1, 2)) == hash(Point(1, 2))
+        assert len({Point(1, 2), Point(1, 2), Point(3, 4)}) == 2
+
+    def test_cannot_add_attributes(self):
+        with pytest.raises(FrozenInstanceError):
+            Point(1, 2).nonexistent_attribute = 1
+
+
+class TestAxialDistanceValidation:
+    """A Point lies on the XY plane, so only Axis.X and Axis.Y can be measured.
+
+    Axis.Z previously returned the Y distance, because the implementation was a
+    ternary with no validation on the else branch.
+    """
+
+    def test_z_axis_raises(self):
+        with pytest.raises(ValueError, match="cannot measure along"):
+            Point(0, 0).axial_distance_to(Point(3, 4), Axis.Z)
+
+    @pytest.mark.parametrize(
+        "axis, expected", [(Axis.X, 3.0), (Axis.Y, 4.0)], ids=["x", "y"]
+    )
+    def test_planar_axes_measure(self, axis, expected):
+        assert Point(0, 0).axial_distance_to(Point(3, 4), axis) == pytest.approx(
+            expected
+        )
+
+
+class TestVectorInterop:
+    """build123d converts a Point directly; b3dkit adds no conversion of its own.
+
+    Vector accepts any two- or three-element iterable, and Point implements
+    __iter__, so Vector(point) works natively. A to_vector() helper would be a
+    second, b3dkit-specific way to do the same thing.
+    """
+
+    def test_build123d_vector_accepts_a_point(self):
+        vector = Vector(Point(1.5, -2.5))
+        assert (vector.X, vector.Y, vector.Z) == pytest.approx((1.5, -2.5, 0.0))

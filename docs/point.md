@@ -11,11 +11,17 @@ The `Point` class Represents a point in 2D space. Instantiating a point is as si
 from b3dkit import Point
 Point(1,3)
 ```
-or it can be instantiated with a list:
-```
+or from a single sequence of two coordinates, in either a tuple or a list:
+```python
 from b3dkit import Point
+Point((1,3))
 Point([1,3])
 ```
+
+A `Point` needs both coordinates: `Point(1)` raises `TypeError`, and a sequence of any length other than two raises `ValueError`.
+
+Points are immutable. `related_point`, `midpoint` and the rest all return new
+`Point` objects, and assigning to `x` or `y` raises `FrozenInstanceError`.
 Once you've defined a point, you can access the x or y values through a variety of means:
 ```
 p = Point(1,3)
@@ -41,13 +47,23 @@ p[1] # returns the y coordinate (3)
     Point(0,10).distance_to(Point(10,10)) # returns 10.0
     ```
 
-#### axial)distance_to
+#### axial_distance_to
 - `axial_distance_to(point: Point, axis: Axis) -> float`
   - Identifies the distance along a single Axis to a second point from the current point.
     ```
     Point(0,10).axial_distance_to(Point(10,-10), Axis.X) # returns 10.0
     Point(0,10).axial_distance_to(Point(10,-10), Axis.Y) # returns 20.0
     ```
+  - A `Point` lies on the XY plane, so only `Axis.X` and `Axis.Y` can be
+    measured; any other axis raises `ValueError`.
+
+#### Converting to a build123d Vector
+`Point` is iterable, and build123d's `Vector` accepts any two-element iterable, so
+no conversion method is needed:
+```python
+from build123d import Vector
+Vector(Point(1,3)) # Vector(1, 3, 0)
+```
 
 #### related_point
 - `related_point(angle: float, distance: float) -> Point`
