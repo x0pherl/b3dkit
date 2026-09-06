@@ -18,6 +18,7 @@ from build123d import (
     extrude,
     loft,
     tuplify,
+    validate_inputs,
 )
 
 __all__ = [
@@ -53,6 +54,8 @@ class Divot(BasePartObject):
                 or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
 
         tolerance = 0 if not positive else radius * 0.05
         ratio = 0.5 if positive else 0.55

@@ -187,6 +187,9 @@ class SquareNutSinkhole(BasePartObject):
                 or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
                 - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
+
         with BuildPart() as sinkhole:
             TeardropCylinder(
                 radius=bolt_radius,

@@ -33,6 +33,7 @@ from build123d import (
     extrude,
     thicken,
     tuplify,
+    validate_inputs,
 )
 
 __all__ = [
@@ -68,6 +69,9 @@ class HexWall(BasePartObject):
                 or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
+
         with BuildPart() as wall:
             hexwall_radius = 2 * sqrt(3) / 3 * apothem
             hexwall_xcount = int(length // ((sqrt(3) / 2 * apothem) / 2)) + 2
@@ -143,6 +147,8 @@ class HexCylindrical(BasePartObject):
                 CENTER, or MAX of object. Defaults to None
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
 
         # Derive the cone's radius-vs-height from its circular edges so any upright
         # cone/frustum works (a pointed cone reduces to radius 0 at its apex).

@@ -152,6 +152,25 @@ def slide_lid(
     x_straighten_distance: float = 0,
     divot_radius: float = 0,
 ) -> Part:
+    """
+    builds only the sliding lid for a box whose outer shape is the given part
+
+    All linear dimensions are in millimetres. The lid is returned in its print
+    orientation, flipped face-down, so it prints without supports.
+
+    args:
+        - part: the part defining the box's outer dimensions
+        - wall_thickness: the thickness of the box walls
+        - tolerance: the clearance between the lid and the base; 0.1 is a tight
+            fit, 0.15 the default, 0.2 and above loose
+        - top_offset: how far below the top of the part the sliding section sits,
+            for parts with features at the top worth preserving
+        - thumb_radius: the radius of the thumb-grip cutout; 0 disables it
+        - x_straighten_distance: how much of the slider stays straight at the
+            edges, which stops wide lids binding at the corners
+        - divot_radius: the radius of the click-fit positioning divots; 0
+            disables them
+    """
 
     cross_section = section(
         obj=part, section_by=Plane.XY.offset(part.bounding_box().max.Z - top_offset)
@@ -211,6 +230,29 @@ def slide_box(
     tolerance: float = 0.15,
     divot_radius: float = 0,
 ) -> Compound:
+    """
+    builds a box and its matching sliding lid from the given outer shape
+
+    All linear dimensions are in millimetres. Both parts are built from one set
+    of arguments, so their fit cannot diverge.
+
+    The returned children are co-located rather than laid out for a print bed;
+    call build123d's pack() on them if you want them arranged. The lid is
+    returned in its print orientation, flipped face-down.
+
+    args:
+        - part: the part defining the box's outer dimensions
+        - wall_thickness: the thickness of the box walls
+        - top_offset: how far below the top of the part the sliding section sits
+        - thumb_radius: the radius of the thumb-grip cutout; 0 disables it
+        - x_straighten_distance: how much of the slider stays straight at the
+            edges, which stops wide lids binding at the corners
+        - tolerance: the clearance between the lid and the base
+        - divot_radius: the radius of the click-fit positioning divots; 0
+            disables them
+
+    returns a Compound labelled "slide box" with two children, "box" and "lid"
+    """
 
     cross_section = section(
         obj=part, section_by=Plane.XY.offset(part.bounding_box().max.Z - top_offset)

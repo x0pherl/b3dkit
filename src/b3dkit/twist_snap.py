@@ -39,6 +39,7 @@ from build123d import (
     fillet,
     sweep,
     tuplify,
+    validate_inputs,
 )
 
 __all__ = [
@@ -81,6 +82,9 @@ class TwistSnapConnector(BasePartObject):
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
 
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
+
         with BuildPart() as twistbase:
             Cylinder(
                 radius=connector_radius,
@@ -175,6 +179,9 @@ class TwistSnapSocket(BasePartObject):
                 or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
+
         outer_socket_radius = connector_radius + wall_width * 4 / 3
         with BuildPart() as socket_fitting:
             Cylinder(

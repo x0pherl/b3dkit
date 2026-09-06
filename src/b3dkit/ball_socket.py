@@ -18,6 +18,7 @@ from build123d import (
     fillet,
     loft,
     tuplify,
+    validate_inputs,
 )
 
 __all__ = [
@@ -55,6 +56,9 @@ class BallMount(BasePartObject):
                 or MAX of object. Defaults to (Align.CENTER, Align.CENTER, Align.CENTER)
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
+
         with BuildPart() as ballmount:
             with BuildPart(Location((0, 0, ball_radius * 2.5))):
                 Sphere(
@@ -122,6 +126,9 @@ class BallSocket(BasePartObject):
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
 
         """
+        context: BuildPart = BuildPart._get_context()
+        validate_inputs(context, self)
+
         with BuildPart() as socket:
             Cylinder(
                 radius=ball_radius + wall_thickness,
