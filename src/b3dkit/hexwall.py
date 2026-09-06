@@ -215,7 +215,7 @@ class HexCylindrical(BasePartObject):
         # Return the cutters as a single (un-fused) Part so the whole pattern can be
         # subtracted in one boolean by the caller.
         part = Part(children=cutters)
-        part.label = "hexcone"
+        part.label = "hex cylindrical"
 
         super().__init__(
             part=part, rotation=rotation, align=tuplify(align, 3), mode=mode

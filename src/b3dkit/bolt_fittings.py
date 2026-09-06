@@ -160,7 +160,7 @@ class SquareNutSinkhole(BasePartObject):
         bolt_radius: float = 1.65,
         bolt_depth: float = 2,
         nut_height: float = 2.1,
-        nut_legnth: float = 5.6,
+        nut_length: float = 5.6,
         nut_depth: float = 100,
         bolt_extension: float = 1,
         rotation: RotationLike = (0, 0, 0),
@@ -176,7 +176,7 @@ class SquareNutSinkhole(BasePartObject):
                 The depth of the bolt hole before the nut trap
             - nut_height: float
                 The height (thickness) of the square nut
-            - nut_legnth: float
+            - nut_length: float
                 The side length of the square nut
             - nut_depth: float
                 How far the nut trap extends
@@ -197,9 +197,9 @@ class SquareNutSinkhole(BasePartObject):
             ),
             with BuildPart(Location((0, bolt_depth, 0))) as nut:
                 Box(
-                    nut_legnth,
+                    nut_length,
                     nut_height,
-                    nut_legnth,
+                    nut_length,
                     align=(Align.CENTER, Align.MIN, Align.CENTER),
                 )
                 extrude(nut.part.faces().sort_by(Axis.Z)[-1], amount=nut_depth)

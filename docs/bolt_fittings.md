@@ -48,7 +48,7 @@ Creates a bolt hole with a square nut trap cavity, allowing nuts to be inserted 
  - bolt_radius: the radius of the bolt shaft (default: 1.65mm for M3)
  - bolt_depth: the depth of the bolt hole before the nut trap (default: 2mm)
  - nut_height: the height (thickness) of the square nut (default: 2.1mm for M3)
- - nut_legnth: the side length of the square nut (default: 5.6mm for M3)
+ - nut_length: the side length of the square nut (default: 5.6mm for M3)
  - nut_depth: how far the nut trap extends (default: 100mm)
  - bolt_extension: how far to extend the bolt hole beyond the nut trap (default: 1mm)
 
@@ -116,7 +116,7 @@ with BuildPart() as part3:
             bolt_radius=1.65,
             bolt_depth=3,
             nut_height=2.1,
-            nut_legnth=5.6,
+            nut_length=5.6,
             nut_depth=20,
             bolt_extension=2,
             mode=Mode.SUBTRACT

@@ -175,8 +175,8 @@ class TestSquareNutSinkhole:
 
     def test_square_nut_different_nut_sizes(self):
         """Test with different nut sizes"""
-        small_nut = SquareNutSinkhole(nut_legnth=4.0, nut_height=1.5)
-        large_nut = SquareNutSinkhole(nut_legnth=8.0, nut_height=3.0)
+        small_nut = SquareNutSinkhole(nut_length=4.0, nut_height=1.5)
+        large_nut = SquareNutSinkhole(nut_length=8.0, nut_height=3.0)
 
         assert isinstance(small_nut, Part)
         assert isinstance(large_nut, Part)

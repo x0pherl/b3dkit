@@ -99,6 +99,17 @@ def distance_to_circle_edge(
     for a circle with the given radius, find the distance from the
     given point to the edge of the circle in the direction determined
     by the given angle
+    -------
+    arguments:
+        - radius: the radius of the circle, centred on the origin
+        - point: an (x, y) coordinate to measure from
+        - angle: the direction to measure in, in degrees
+
+    returns the distance to the *far* intersection with the circle. A ray from
+    a point inside the circle meets the perimeter once in the given direction,
+    so for the usual case the two roots differ in sign and this is that hit.
+
+    raises ValueError if the ray does not meet the circle at all.
     """
     x1, y1 = point
     theta = radians(angle)

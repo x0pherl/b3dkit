@@ -67,10 +67,10 @@ Calculates the distance from a given point to the edge of a circle in a specifie
 - `angle` (float): The direction angle in degrees
 
 **Returns:**
-- `float`: Distance to the circle edge
+- `float`: Distance to the *far* intersection with the circle. A ray from a point inside the circle meets the perimeter once in the given direction, so for the usual case this is that hit.
 
 **Raises:**
-- `ValueError`: If the discriminant is negative (no intersection)
+- `ValueError`: If the ray does not meet the circle at all
 
 ### opposite_length
 
