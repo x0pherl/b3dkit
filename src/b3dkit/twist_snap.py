@@ -40,7 +40,6 @@ from build123d import (
     sweep,
     tuplify,
 )
-from ocp_vscode import Camera, show
 
 __all__ = [
     "TwistSnapConnector",
@@ -276,6 +275,8 @@ class TwistSnapSocket(BasePartObject):
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     connector = (
         TwistSnapConnector(
             connector_radius=4.5,

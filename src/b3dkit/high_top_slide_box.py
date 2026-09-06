@@ -18,7 +18,6 @@ from build123d import (
     make_face,
     pack,
 )
-from ocp_vscode import Camera, show
 
 from b3dkit.basic_shapes import (
     DiamondCylinder,
@@ -518,6 +517,8 @@ def high_top_slide_box(
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     with BuildPart() as base_box:
         Box(44, 44, 44, align=(Align.CENTER, Align.CENTER, Align.MIN))
         fillet(base_box.part.edges().filter_by(Axis.Z), radius=1.5)

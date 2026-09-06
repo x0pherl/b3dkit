@@ -31,7 +31,6 @@ from build123d import (
     tuplify,
     validate_inputs,
 )
-from ocp_vscode import Camera, show
 
 __all__ = [
     "radius_to_apothem",
@@ -392,6 +391,7 @@ class TeardropCylinder(BasePartObject):
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
 
     show(
         PolygonalCylinder(

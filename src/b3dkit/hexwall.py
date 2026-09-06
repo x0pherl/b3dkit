@@ -34,7 +34,6 @@ from build123d import (
     thicken,
     tuplify,
 )
-from ocp_vscode import show
 
 __all__ = [
     "HexWall",
@@ -224,6 +223,8 @@ class HexCylindrical(BasePartObject):
 
 
 if __name__ == "__main__":
+    from ocp_vscode import show
+
     cone = Cone(100, 50, 100, align=(Align.CENTER, Align.CENTER, Align.MIN))
     cylinder = Cylinder(100, 100)
 

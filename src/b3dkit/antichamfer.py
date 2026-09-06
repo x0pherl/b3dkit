@@ -19,7 +19,6 @@ from build123d import (
     flatten_sequence,
     validate_inputs,
 )
-from ocp_vscode import Camera, show
 
 __all__ = [
     "anti_chamfer",
@@ -71,6 +70,8 @@ def anti_chamfer(
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     with BuildPart(Location((33, 11, 0))) as bkt:
         Box(
             60,

@@ -18,7 +18,6 @@ from build123d import (
     tuplify,
     validate_inputs,
 )
-from ocp_vscode import Camera, show
 
 from b3dkit.antichamfer import anti_chamfer
 from b3dkit.basic_shapes import TeardropCylinder
@@ -358,6 +357,8 @@ class HeatsinkCut(BasePartObject):
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     with BuildPart() as tst:
         Box(20, 20, 20)
         with GridLocations(10, 10, 2, 2):

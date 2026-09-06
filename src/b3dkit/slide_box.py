@@ -22,7 +22,6 @@ from build123d import (
     pack,
     section,
 )
-from ocp_vscode import Camera, show
 
 from b3dkit.click_fit import Divot
 
@@ -255,6 +254,8 @@ def slide_box(
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     with BuildPart() as base_box:
         Box(20, 44, 14, align=(Align.CENTER, Align.CENTER, Align.MIN))
         fillet(base_box.part.edges().filter_by(Axis.Z), radius=1.5)

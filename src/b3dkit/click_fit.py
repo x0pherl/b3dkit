@@ -19,7 +19,6 @@ from build123d import (
     loft,
     tuplify,
 )
-from ocp_vscode import Camera, show
 
 __all__ = [
     "Divot",
@@ -72,6 +71,8 @@ class Divot(BasePartObject):
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     show(
         Divot(10, extend_base=True),
         Divot(10, positive=False),

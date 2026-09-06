@@ -19,7 +19,6 @@ from build123d import (
     loft,
     tuplify,
 )
-from ocp_vscode import Camera, show
 
 __all__ = [
     "BallMount",
@@ -166,6 +165,8 @@ class BallSocket(BasePartObject):
 
 
 if __name__ == "__main__":
+    from ocp_vscode import Camera, show
+
     show(
         BallMount(
             24.24871131,
