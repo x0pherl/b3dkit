@@ -6,7 +6,7 @@ Dovetail is intended for breaking large parts into a dovetail and socketed part 
 
 ![example of a part split into a dovetail and a socket](dovetail.png)
 
-The `dovetail_subpart` function takes a build123d part and the necessary parameters to break it into either the dovetail or the socket component of the split. Call it twice with the same arguments, changing only `subpart`, to produce a mating pair.
+The `dovetail_subpart` function takes a build123d part and the necessary parameters to break it into either the dovetail or the socket component of the split. To build both halves at once, use [`dovetail_split`](#building-both-halves).
 
 All linear dimensions are in millimeters and all angles are in degrees.
 
@@ -44,7 +44,7 @@ The two subparts are not equal halves: the tongue belongs to the tail, and for `
 
 ### Style-conditional
 
-The table below reflects what each parameter actually changes. Passing a parameter to a style that does not use it is currently accepted and silently ignored.
+The table below reflects what each parameter actually changes. Passing a parameter to a style that does not use it raises `ValueError` rather than being silently discarded.
 
 | Argument | Default | TRADITIONAL | SNUGTAIL | T_SLOT |
 |---|---|---|---|---|
@@ -64,12 +64,34 @@ The table below reflects what each parameter actually changes. Passing a paramet
 
 !!! note "`depth_ratio` and SNUGTAIL"
 
-    SNUGTAIL does not accept `depth_ratio` from `dovetail_subpart`; it uses its own
-    prototyped value of `0.15`. This is deliberate, not an oversight. The snugtail depth
+    SNUGTAIL rejects `depth_ratio`; it uses its own prototyped value of `0.15`.
+    This is deliberate, not an oversight. The snugtail depth
     model was rewritten after physical prototyping so that `depth_ratio` no longer means
     what it means for TRADITIONAL, and forwarding the shared value would change the
     geometry of every snugtail joint. `length_ratio` and `tail_angle_offset` *are*
     honored for SNUGTAIL.
+
+## Building both halves
+
+Both subparts of a joint must be built from identical arguments; a single divergent value produces two subparts that are each valid and do not fit. `dovetail_split` builds the pair from one argument set, so they cannot diverge:
+
+```python
+from build123d import Align, Box, BuildPart, Mode
+from b3dkit import DovetailStyle, Point, dovetail_split
+
+with BuildPart(mode=Mode.PRIVATE) as longbox:
+    Box(50, 40, 50, align=(Align.CENTER, Align.CENTER, Align.MIN))
+
+tail, socket = dovetail_split(
+    longbox.part,
+    Point(0, -20),
+    Point(0, 20),
+    style=DovetailStyle.TRADITIONAL,
+    length_ratio=0.7,
+)
+```
+
+It accepts every argument `dovetail_subpart` does except `subpart`, which it supplies for each half.
 
 ## Returns
 
@@ -119,3 +141,4 @@ socket = dovetail_subpart(longbox.part, start, end, subpart=DovetailSubpart.SOCK
 - `ValueError`: if `vertical_offset` is negative and `taper_angle` is negative.
 - `ValueError`: if `vertical_offset` is positive and `taper_angle` is positive.
 - `ValueError`: for SNUGTAIL, if `length_ratio + depth_ratio` exceeds 1.
+- `ValueError`: if an argument is passed that the chosen `style` does not use — see the style-conditional table above.

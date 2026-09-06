@@ -10,6 +10,7 @@ from b3dkit.dovetail import (
     DovetailSubpart,
     _dovetail_subpart_outline,
     _snugtail_subpart_outline,
+    dovetail_split,
     dovetail_subpart,
 )
 from b3dkit.point import Point
@@ -304,11 +305,19 @@ class TestSnugtailDepthRatioDecoupling:
     TRADITIONAL, and ``_snugtail_subpart_outline`` keeps its own prototyped
     default of 0.15.
 
-    These tests exist so that re-forwarding it fails loudly rather than silently
-    changing the geometry of every snugtail joint ever printed.
+    Passing it with SNUGTAIL now raises rather than being discarded, so these
+    tests guard both halves of the contract: the argument is rejected at the
+    public boundary, and the prototyped default still reaches the outline.
     """
 
+    def test_depth_ratio_rejected_for_snugtail(self):
+        with pytest.raises(
+            ValueError, match="has no effect for DovetailStyle.SNUGTAIL"
+        ):
+            _subpart(style=DovetailStyle.SNUGTAIL, depth_ratio=0.3)
+
     def test_depth_ratio_does_not_reach_snugtail(self, monkeypatch):
+        """Even for a default build, depth_ratio must not be forwarded."""
         import b3dkit.dovetail as dovetail_module
 
         received = []
@@ -319,7 +328,7 @@ class TestSnugtailDepthRatioDecoupling:
             return original(*args, **kwargs)
 
         monkeypatch.setattr(dovetail_module, "_snugtail_subpart_outline", spy)
-        _subpart(style=DovetailStyle.SNUGTAIL, depth_ratio=0.3)
+        _subpart(style=DovetailStyle.SNUGTAIL)
 
         assert received, "_snugtail_subpart_outline was never called"
         assert all(value is None for value in received), (
@@ -327,12 +336,92 @@ class TestSnugtailDepthRatioDecoupling:
             "decoupled it after physical prototyping"
         )
 
-    def test_snugtail_geometry_ignores_depth_ratio(self):
-        baseline = _shape_signature(_subpart(style=DovetailStyle.SNUGTAIL))
-        altered = _shape_signature(
-            _subpart(style=DovetailStyle.SNUGTAIL, depth_ratio=0.3)
+
+class TestStyleConditionalArguments:
+    """Arguments a style would discard must raise instead of being ignored.
+
+    The applicability map is measured, not assumed: each entry below was
+    confirmed to change (or not change) the resulting geometry.
+    """
+
+    @pytest.mark.parametrize(
+        "style, param, value",
+        [
+            (DovetailStyle.SNUGTAIL, "depth_ratio", 0.3),
+            (DovetailStyle.SNUGTAIL, "linear_offset", 6),
+            (DovetailStyle.SNUGTAIL, "slot_count", 3),
+            (DovetailStyle.SNUGTAIL, "depth", 5),
+            (DovetailStyle.TRADITIONAL, "slot_count", 3),
+            (DovetailStyle.TRADITIONAL, "depth", 5),
+            (DovetailStyle.T_SLOT, "length_ratio", 0.7),
+            (DovetailStyle.T_SLOT, "depth_ratio", 0.3),
+            (DovetailStyle.T_SLOT, "tail_angle_offset", 35),
+            (DovetailStyle.T_SLOT, "linear_offset", 6),
+        ],
+    )
+    def test_inert_argument_raises(self, style, param, value):
+        with pytest.raises(ValueError, match="has no effect"):
+            _subpart(style=style, **{param: value})
+
+    @pytest.mark.parametrize(
+        "style, param, value",
+        [
+            (DovetailStyle.TRADITIONAL, "length_ratio", 0.7),
+            (DovetailStyle.TRADITIONAL, "depth_ratio", 0.3),
+            (DovetailStyle.TRADITIONAL, "tail_angle_offset", 35),
+            (DovetailStyle.TRADITIONAL, "linear_offset", 6),
+            (DovetailStyle.SNUGTAIL, "length_ratio", 0.7),
+            (DovetailStyle.SNUGTAIL, "tail_angle_offset", 35),
+            (DovetailStyle.T_SLOT, "slot_count", 3),
+            (DovetailStyle.T_SLOT, "depth", 5),
+        ],
+    )
+    def test_applicable_argument_accepted(self, style, param, value):
+        assert _subpart(style=style, **{param: value}).is_valid
+
+    @pytest.mark.parametrize("style", list(DovetailStyle))
+    def test_defaults_never_raise(self, style):
+        assert _subpart(style=style).is_valid
+
+
+class TestDovetailSplit:
+    """``dovetail_split`` builds both halves from one argument set."""
+
+    def test_returns_matching_pair(self):
+        tail, socket = dovetail_split(_split_box(), Point(-20, 0), Point(20, 0))
+        assert tail.is_valid and socket.is_valid
+        assert tail.label != socket.label or tail.volume != socket.volume
+
+    def test_halves_match_dovetail_subpart(self):
+        kwargs = dict(style=DovetailStyle.TRADITIONAL, length_ratio=0.7)
+        tail, socket = dovetail_split(
+            _split_box(), Point(-20, 0), Point(20, 0), **kwargs
         )
-        assert _max_delta(baseline, altered) == pytest.approx(0, abs=1e-9)
+        assert tail.volume == pytest.approx(
+            _subpart(subpart=DovetailSubpart.TAIL, **kwargs).volume
+        )
+        assert socket.volume == pytest.approx(
+            _subpart(subpart=DovetailSubpart.SOCKET, **kwargs).volume
+        )
+
+    def test_rejects_subpart_argument(self):
+        with pytest.raises(TypeError, match="builds both subparts"):
+            dovetail_split(
+                _split_box(),
+                Point(-20, 0),
+                Point(20, 0),
+                subpart=DovetailSubpart.TAIL,
+            )
+
+    def test_propagates_style_validation(self):
+        with pytest.raises(ValueError, match="has no effect"):
+            dovetail_split(
+                _split_box(),
+                Point(-20, 0),
+                Point(20, 0),
+                style=DovetailStyle.T_SLOT,
+                length_ratio=0.7,
+            )
 
 
 class TestDefaultGeometryUnchanged:

@@ -42,6 +42,7 @@ __all__ = [
     "DovetailSubpart",
     "DovetailStyle",
     "dovetail_subpart",
+    "dovetail_split",
 ]
 
 
@@ -790,6 +791,49 @@ def _subpart_slab(
     return intersect.part
 
 
+#: which shaping arguments actually reach the outline for each style. Measured,
+#: not assumed: a parameter absent here is accepted and then discarded, which is
+#: how four documented knobs silently did nothing before 0.2.0.
+_STYLE_PARAMETERS: dict[DovetailStyle, frozenset[str]] = {
+    DovetailStyle.TRADITIONAL: frozenset(
+        {"linear_offset", "tail_angle_offset", "length_ratio", "depth_ratio"}
+    ),
+    DovetailStyle.SNUGTAIL: frozenset({"tail_angle_offset", "length_ratio"}),
+    DovetailStyle.T_SLOT: frozenset({"slot_count", "depth"}),
+}
+
+#: the default of each style-conditional argument, used to tell "not passed"
+#: from "passed deliberately"
+_STYLE_PARAMETER_DEFAULTS: dict[str, float] = {
+    "linear_offset": 0,
+    "tail_angle_offset": 15,
+    "length_ratio": 1 / 3,
+    "depth_ratio": 1 / 6,
+    "slot_count": 1,
+    "depth": 2,
+}
+
+
+def _reject_inert_parameters(style: DovetailStyle, **passed: float) -> None:
+    """Raise if an argument was given that the chosen style would discard.
+
+    Validation belongs here, at the public boundary, where style and every
+    argument are visible in one frame. Raising from inside the dispatch would
+    cover only part of the set and report from the wrong stack frame.
+    """
+    applies = _STYLE_PARAMETERS[style]
+    for name, value in passed.items():
+        if name in applies or value == _STYLE_PARAMETER_DEFAULTS[name]:
+            continue
+        used_by = sorted(
+            other.name for other, params in _STYLE_PARAMETERS.items() if name in params
+        )
+        raise ValueError(
+            f"{name}={value!r} has no effect for DovetailStyle.{style.name} and "
+            f"would be silently ignored; it applies to: {', '.join(used_by)}"
+        )
+
+
 def dovetail_subpart(
     part: Part,
     start: Point,
@@ -834,6 +878,15 @@ def dovetail_subpart(
             cut on one side, and provides a hard stop for fitting. A positive number results in a straight cut on the bottom
             of the part passed, a negagive number results in a straight cut on the top of the part passed
     """
+    _reject_inert_parameters(
+        style,
+        linear_offset=linear_offset,
+        tail_angle_offset=tail_angle_offset,
+        length_ratio=length_ratio,
+        depth_ratio=depth_ratio,
+        slot_count=slot_count,
+        depth=depth,
+    )
     if start == end:
         raise ValueError("start and end points cannot be the same")
     if abs(vertical_offset) > part.bounding_box().size.Z:
@@ -985,6 +1038,41 @@ def dovetail_subpart(
             )
 
     return intersect.part
+
+
+def dovetail_split(
+    part: Part,
+    start: Point,
+    end: Point,
+    **kwargs,
+) -> tuple[Part, Part]:
+    """
+    split a part into a mating (tail, socket) pair from one set of arguments
+
+    Both halves of a joint must be built from identical arguments; a single
+    divergent value yields two subparts that are each valid and do not fit.
+    Calling dovetail_subpart twice makes that divergence possible, so prefer
+    this when you want both halves.
+
+    args:
+        - part: the part to split
+        - start: the start point along the XY Plane for the dovetail line
+        - end: the end point along the XY Plane for the dovetail line
+        - **kwargs: any other argument accepted by dovetail_subpart, except
+            subpart, which is supplied for each half
+
+    returns a (tail, socket) tuple
+    """
+    if "subpart" in kwargs:
+        raise TypeError(
+            "dovetail_split() builds both subparts; pass dovetail_subpart() a "
+            "subpart= argument instead if you only want one"
+        )
+    tail = dovetail_subpart(part, start, end, subpart=DovetailSubpart.TAIL, **kwargs)
+    socket = dovetail_subpart(
+        part, start, end, subpart=DovetailSubpart.SOCKET, **kwargs
+    )
+    return tail, socket
 
 
 def _tslot_split_line(
@@ -1286,9 +1374,6 @@ if __name__ == "__main__":
         taper_angle=0.25,
         scarf_angle=2,
         vertical_offset=-14.33333,
-        tail_angle_offset=25,
-        length_ratio=0.7,
-        depth_ratio=0.3,
     ).move(Location((0, 0, 0)))
     sckt = dovetail_subpart(
         test.part,
@@ -1302,9 +1387,6 @@ if __name__ == "__main__":
         taper_angle=0.25,
         scarf_angle=2,
         vertical_offset=-14.33333,
-        tail_angle_offset=25,
-        length_ratio=0.7,
-        depth_ratio=0.3,
     )
     sckt.color = (0.5, 0.5, 0.5)
     splines = _dovetail_subpart_outline(
@@ -1314,9 +1396,6 @@ if __name__ == "__main__":
         style=DovetailStyle.T_SLOT,
         taper_distance=0,
         tolerance=0.1,
-        length_ratio=0.6,
-        depth_ratio=0.3,
-        tail_angle_offset=35,
         slot_count=1,
         depth=2,
         # scarf_angle=20,
@@ -1329,9 +1408,6 @@ if __name__ == "__main__":
         style=DovetailStyle.T_SLOT,
         taper_distance=0,
         tolerance=0.1,
-        length_ratio=0.6,
-        depth_ratio=0.3,
-        tail_angle_offset=35,
         slot_count=1,
         depth=2,
         # scarf_angle=20,
