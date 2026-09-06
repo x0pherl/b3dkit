@@ -53,11 +53,9 @@ class TwistSnapConnector(BasePartObject):
     def __init__(
         self,
         connector_radius: float = 4.5,
-        tolerance: float = 0.12,
         arc_percentage: float = 10,
         snapfit_count: int = 4,
         snapfit_radius_extension: float = 2 * 2 / 3,
-        wall_width: float = 2,
         wall_depth: float = 2,
         snapfit_height: float = 2,
         rotation: RotationLike = (0, 0, 0),
@@ -66,14 +64,19 @@ class TwistSnapConnector(BasePartObject):
     ):
         """
         Returns a connector that locks into a socket with a twist.
+
+        The connector is built at nominal size. All fit clearance lives on
+        the socket, which enlarges its bore and snapfit recess by its own
+        ``tolerance``; adding clearance here as well would double it. Pass
+        the same ``connector_radius``, ``snapfit_radius_extension``,
+        ``snapfit_height``, ``arc_percentage`` and ``snapfit_count`` to both
+        halves so they mate.
         ----------
         Arguments:
             - connector_radius: the base radius of the connector mechanism
-            - tolerance: the spacing between the connector and the socket
             - arc_percentage: the percentage of the arc that the snapfit will cover
             - snapfit_count: how many snapfit mechanisms to add
             - snapfit_radius_extension: how far beyond the connector the snapfit extends
-            - wall_width: the thickness of the wall mechanism
             - wall_depth: the depth of the wall mechanism
             - snapfit_height: the height of the snapfit mechanism
             - rotation (RotationLike, optional): angles to rotate about axes. Defaults to (0, 0, 0)
@@ -287,10 +290,8 @@ if __name__ == "__main__":
     connector = (
         TwistSnapConnector(
             connector_radius=4.5,
-            tolerance=0.12,
             snapfit_height=2,
-            snapfit_radius_extension=2 * (2 / 3) - 0.06,
-            wall_width=2,
+            snapfit_radius_extension=2 * (2 / 3),
             wall_depth=2,
         )
         .rotate(Axis.X, 180)
@@ -300,7 +301,7 @@ if __name__ == "__main__":
         connector_radius=4.5,
         tolerance=0.12,
         snapfit_height=2,
-        snapfit_radius_extension=2 * (2 / 3) - 0.06,
+        snapfit_radius_extension=2 * (2 / 3),
         wall_width=2,
         wall_depth=2,
     )

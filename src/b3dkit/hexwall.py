@@ -112,8 +112,6 @@ class HexCylindrical(BasePartObject):
         vertical_count: int,
         thickness: float,
         z_distance: float,
-        rotation: RotationLike = (0, 0, 0),
-        align: None | Align | tuple[Align, Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):
         """
@@ -122,6 +120,12 @@ class HexCylindrical(BasePartObject):
         Wraps a honeycomb of hexagonal holes around the cylindrical surface of a Cylinder
         or Cone and returns the hole geometry *only* (the cutters), so the caller can remove
         them elsewhere with ``mode=Mode.SUBTRACT``.
+
+        Unlike other Part objects here this takes no ``rotation`` or ``align``. The
+        cutters are positioned against the surface they wrap, so moving them off it
+        is never useful; both arguments were previously accepted and did nothing.
+        Rotate the ``cylindrical`` argument before passing it in if you want the
+        pattern somewhere else.
 
         The holes are laid out row by row: ``horizontal_count`` holes run around the cone at each
         height, ``vertical_count`` rows stack up the slope from ``z_distance``, and alternate
@@ -141,10 +145,6 @@ class HexCylindrical(BasePartObject):
                 ``thickness >= wall_thickness`` to cut clean through a hollow cone wall
             - z_distance (float): height of the lowest row of holes, measured up
                 from the bottom of the cone (not an absolute Z coordinate)
-            - rotation (RotationLike, optional): angles to rotate about axes. Defaults to
-                (0, 0, 0)
-            - align (Align | tuple[Align, Align, Align] | None, optional): align MIN,
-                CENTER, or MAX of object. Defaults to None
             - mode (Mode, optional): combine mode. Defaults to Mode.ADD
         """
         context: BuildPart = BuildPart._get_context()
@@ -223,9 +223,7 @@ class HexCylindrical(BasePartObject):
         part = Part(children=cutters)
         part.label = "hex cylindrical"
 
-        super().__init__(
-            part=part, rotation=rotation, align=tuplify(align, 3), mode=mode
-        )
+        super().__init__(part=part, rotation=(0, 0, 0), align=None, mode=mode)
 
 
 if __name__ == "__main__":

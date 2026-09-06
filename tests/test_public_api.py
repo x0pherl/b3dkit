@@ -19,6 +19,10 @@ import b3dkit
 SRC = pathlib.Path(__file__).resolve().parents[1] / "src" / "b3dkit"
 
 PUBLIC_NAMES = sorted(b3dkit.__all__)
+#: Objects that position their result against a shape they are given, for which
+#: rotation and align cannot mean anything. See HexCylindrical.
+POSITIONED_AGAINST_INPUT = {"HexCylindrical"}
+
 PART_OBJECTS = sorted(
     name
     for name in b3dkit.__all__
@@ -97,8 +101,19 @@ class TestPartObjectContract:
 
     @pytest.mark.parametrize("name", PART_OBJECTS)
     def test_signature_ends_with_rotation_align_mode(self, name):
-        """build123d's own objects end this way; ours should read the same."""
+        """build123d's own objects end this way; ours should read the same.
+
+        HexCylindrical is exempt and takes mode only. It positions its result
+        against a shape it is given, so rotation and align cannot mean anything
+        for it -- both were measurably inert when it still offered them.
+        """
         params = list(inspect.signature(getattr(b3dkit, name)).parameters)
+        if name in POSITIONED_AGAINST_INPUT:
+            assert params[-1] == "mode", f"{name} should still end with mode"
+            assert (
+                "rotation" not in params and "align" not in params
+            ), f"{name} positions against its input; rotation and align would be inert"
+            return
         assert params[-3:] == [
             "rotation",
             "align",

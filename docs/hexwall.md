@@ -73,9 +73,9 @@ Each row is centered on a fixed meridian, so the pattern stays left/right symmet
 - `vertical_count` (int): Number of rows stacked up the slope. Rows that fall off the top edge are skipped, so the actual number of rows may be fewer.
 - `thickness` (float): How far each cutter extends in/out of the surface. Set `thickness >= wall_thickness` to cut clean through a hollow wall.
 - `z_distance` (float): Height of the lowest row of holes, measured up from the bottom of the surface (not an absolute Z coordinate).
-- `rotation` (RotationLike, default=(0, 0, 0)): Angles to rotate about the axes.
-- `align` (Union[None, Align, tuple[Align, Align, Align]], default=None): Align MIN, CENTER, or MAX of the object.
 - `mode` (Mode, default=Mode.ADD): Combine mode used when the object is created inside an active build context.
+
+Unlike the other Part objects in b3dkit, `HexCylindrical` takes no `rotation` or `align`. The cutters are positioned against the surface they wrap, so moving them off it is never useful. Rotate or reposition the `cylindrical` argument before passing it in if you want the pattern elsewhere.
 
 ### Returns
 
