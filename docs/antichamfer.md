@@ -10,11 +10,24 @@ The `antichamfer` module provides functionality to create anti-chamfers. An anti
 
 #### arguments
 
- - length: the depth of the anti-chamfer (how far to offset inward from the original face)
- - length2: the width of the taper at the bottom (optional, defaults to length if not specified)
- - face: the face or faces to apply the anti-chamfer to (can be a single Face or an iterable of Faces)
+`anti_chamfer(face, length, length2=None) -> Part`
+
+ - `face`: the face or faces to apply the anti-chamfer to (a single `Face` or an iterable of `Face`)
+ - `length`: how far the anti-chamfer extends outward from the original face, in mm
+ - `length2`: the width of the taper measured across the face, in mm (optional, defaults to `length`)
 
 The function creates a tapered extrusion that extends outward from the specified faces. The taper angle is calculated based on the ratio of length2 to length, creating different bevel profiles depending on these values.
+
+#### builder context
+
+`anti_chamfer` applies to `BuildPart` only; calling it inside a `BuildSketch` or `BuildLine` raises `RuntimeError`. Inside a `BuildPart` the context object is replaced with the result. Outside any builder it returns a new `Part` and leaves its input alone.
+
+Like build123d's own `chamfer` and `fillet`, it takes no `mode` argument.
+
+#### raises
+
+ - `ValueError`: if no faces are given, if any object passed is not a `Face`, or if the faces do not belong to a `Part`
+ - `RuntimeError`: if called inside a builder other than `BuildPart`
 
 ## Usage Notes
 
@@ -44,7 +57,6 @@ result = anti_chamfer(
     base_part.faces().filter_by(Axis.Z)[-1],  # top face
     2.0,  # length
     2.0,  # length2
-    
 )
 
 # Apply anti-chamfer to multiple faces with different taper

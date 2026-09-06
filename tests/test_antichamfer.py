@@ -4,12 +4,15 @@ from unittest.mock import patch
 
 import pytest
 from build123d import (
+    Align,
     Axis,
     Box,
     BuildPart,
+    BuildSketch,
     Cylinder,
     Face,
     Plane,
+    Rectangle,
 )
 
 from b3dkit.antichamfer import anti_chamfer
@@ -145,3 +148,49 @@ class TestAntiChamfer:
         ):
             loader = SourceFileLoader("__main__", module_path("antichamfer"))
             loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
+
+
+class TestAntiChamferBuilderContract:
+    """anti_chamfer applies to BuildPart only, and must say so.
+
+    It previously identified itself as "chamfer" to build123d's
+    operations_apply_to table. That table is not b3dkit's to use, and chamfer's
+    entry is a looser contract than anti_chamfer can honour: chamfer applies to
+    BuildSketch and BuildLine, where anti_chamfer's extrude() cannot work.
+    Borrowing it meant a call inside a BuildSketch completed silently instead of
+    being refused.
+    """
+
+    def test_rejects_build_sketch(self):
+        with BuildSketch() as sketch:
+            Rectangle(10, 10)
+            with pytest.raises(RuntimeError, match="applies to BuildPart"):
+                anti_chamfer(sketch.sketch.faces(), 1, 1)
+
+    def test_accepts_build_part(self):
+        with BuildPart() as part:
+            Box(60, 10, 20, align=(Align.CENTER, Align.CENTER, Align.MIN))
+            before = part.part.volume
+            anti_chamfer(part.faces().filter_by(Axis.Z), 1, 1)
+        assert part.part.is_valid
+        assert part.part.volume > before
+
+    def test_works_outside_any_builder(self):
+        with BuildPart() as part:
+            Box(60, 10, 20, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        result = anti_chamfer(part.part.faces().filter_by(Axis.Z), 1, 1)
+        assert result.is_valid
+        assert result.volume > part.part.volume
+
+    def test_does_not_use_build123d_private_dispatch_table(self):
+        """The fix is only real if the borrowed name is gone from the source."""
+        import inspect
+
+        import b3dkit.antichamfer as module
+
+        source = inspect.getsource(module.anti_chamfer)
+        code = "\n".join(
+            line for line in source.splitlines() if not line.strip().startswith("#")
+        )
+        assert "validate_inputs" not in code
+        assert '"chamfer"' not in code

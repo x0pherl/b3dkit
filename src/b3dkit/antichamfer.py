@@ -17,7 +17,6 @@ from build123d import (
     extrude,
     fillet,
     flatten_sequence,
-    validate_inputs,
 )
 
 __all__ = [
@@ -30,14 +29,39 @@ def anti_chamfer(
     length: float,
     length2: float | None = None,
 ) -> Part:
+    """extrude the given faces outward with a taper, the inverse of a chamfer
+
+    Applies to BuildPart only. Inside a builder the context object is replaced
+    with the result, matching build123d's own chamfer, which likewise takes no
+    mode argument.
+
+    args:
+        - face: the Face, or iterable of Faces, to extend
+        - length: how far to extend, in mm
+        - length2: the taper measured across the face, in mm; defaults to length
+
+    raises ValueError if no Faces are given, if any object is not a Face, or if
+    the faces do not belong to a Part
+    raises RuntimeError if called inside a builder other than BuildPart
+    """
     faces_list = flatten_sequence(face)
     if len(faces_list) == 0:
         raise ValueError("No faces provided to anti_chamfer")
     if not all([isinstance(obj, Face) for obj in faces_list]):
         raise ValueError("anti_chamfer operation takes only Faces")
 
-    context: Builder | None = Builder._get_context("chamfer")
-    validate_inputs(context, "chamfer", faces_list)
+    # Check the builder directly rather than routing through
+    # validate_inputs(context, "chamfer", ...). That looked anti_chamfer up in
+    # build123d's operations_apply_to table under chamfer's name, which is a
+    # table b3dkit does not own and, worse, a looser contract: chamfer applies
+    # to BuildSketch and BuildLine, where anti_chamfer's extrude() cannot work.
+    # Borrowing it let anti_chamfer run inside a BuildSketch and quietly do the
+    # wrong thing instead of refusing.
+    context: Builder | None = Builder._get_context("anti_chamfer")
+    if context is not None and not isinstance(context, BuildPart):
+        raise RuntimeError(
+            f"anti_chamfer applies to BuildPart, not {type(context).__name__}"
+        )
 
     if length2 is None:
         length2 = length
