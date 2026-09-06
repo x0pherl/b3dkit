@@ -1,12 +1,12 @@
 [project]
 name = "b3dkit"
-version = "0.3.1"
+version = "0.3.2"
 authors = [
   { name="x0pherl"},
 ]
 description = "build123d libraries and utilities"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -56,11 +56,11 @@ markers = [
 
 [tool.black]
 line-length = 88
-target-version = ["py310"]
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py311"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
