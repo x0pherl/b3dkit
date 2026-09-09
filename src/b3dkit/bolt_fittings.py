@@ -251,13 +251,13 @@ class NutCut(BasePartObject):
         context: BuildPart = BuildPart._get_context()
         validate_inputs(context, self)
 
-        with BuildPart(Location((0, 0, head_depth))) as cut:
+        with BuildPart() as cut:
             with BuildSketch():
                 RegularPolygon(radius=head_radius, side_count=6)
             extrude(amount=head_depth)
             Cylinder(
                 radius=shaft_radius,
-                height=shaft_length,
+                height=shaft_length + head_depth,
                 align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
 
