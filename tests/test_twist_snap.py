@@ -14,7 +14,12 @@ class TestTwistSnap:
             snapfit_radius_extension=2 * (2 / 3),
             wall_depth=2,
         )
-        assert connector.is_valid
+        assert connector.volume == pytest.approx(275.6677, rel=1e-4)
+        assert connector.bounding_box().size.X == pytest.approx(11.5451, rel=1e-4)
+        # Known issue: the base and its four snapfits meet only on a shared
+        # plane, so they never fuse and this returns five solids. Pinned rather
+        # than asserted as correct; when it is fixed this should read == 1.
+        assert len(connector.solids()) == 5
 
     def test_connector_takes_no_clearance_arguments(self):
         """All fit clearance lives on the socket; the connector is nominal.
@@ -63,4 +68,7 @@ class TestTwistSnap:
             wall_width=2,
             wall_depth=2,
         )
-        assert socket.is_valid
+        assert len(socket.solids()) == 1
+        assert socket.volume == pytest.approx(630.1939, rel=1e-4)
+        # the socket has to swallow the connector, so it is the wider part
+        assert socket.bounding_box().size.X > 11.5451

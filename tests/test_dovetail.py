@@ -69,7 +69,10 @@ class TestDovetail:
                     click_fit_radius=0.5,
                 ),
             )
-        assert tail.part.is_valid
+        assert len(tail.part.solids()) == 1
+        assert tail.part.volume == pytest.approx(505.6255, rel=1e-4)
+        # the tail keeps the tongue, so it is longer in Y than the socket
+        assert tail.part.bounding_box().size.Y == pytest.approx(26.8917, rel=1e-4)
 
     def test_valid_socket(self):
         with BuildPart(mode=Mode.PRIVATE) as test:
@@ -86,7 +89,8 @@ class TestDovetail:
                     vertical_offset=-0.5,
                 ),
             )
-        assert socket.part.is_valid
+        assert len(socket.part.solids()) == 1
+        assert socket.part.volume == pytest.approx(650.0268, rel=1e-4)
 
     def test_raises_invalid_style_for_snugtail(self):
         with pytest.raises(ValueError):
@@ -113,7 +117,8 @@ class TestDovetail:
                     vertical_offset=-0.5,
                 ),
             )
-        assert socket.part.is_valid
+        assert len(socket.part.solids()) == 1
+        assert socket.part.volume == pytest.approx(509.5927, rel=1e-4)
 
     def test_valid_tslot_tail(self):
         with BuildPart(mode=Mode.PRIVATE) as test:
@@ -131,7 +136,8 @@ class TestDovetail:
                     vertical_offset=-0.5,
                 ),
             )
-        assert tail.part.is_valid
+        assert len(tail.part.solids()) == 1
+        assert tail.part.volume == pytest.approx(492.0199, rel=1e-4)
 
     def test_valid_snugtail_tail(self):
         with BuildPart(mode=Mode.PRIVATE) as test:
@@ -148,7 +154,10 @@ class TestDovetail:
                     click_fit_radius=1,
                 ),
             )
-        assert tail.part.is_valid
+        assert len(tail.part.solids()) == 1
+        assert tail.part.volume == pytest.approx(346.5381, rel=1e-4)
+        # the click-fit divot stands proud of the 2mm part
+        assert tail.part.bounding_box().max.Z == pytest.approx(2.5)
 
     def test_valid_snugtail_socket(self):
         with BuildPart(mode=Mode.PRIVATE) as test:
@@ -167,7 +176,10 @@ class TestDovetail:
                     click_fit_radius=1,
                 ),
             )
-        assert socket.part.is_valid
+        assert len(socket.part.solids()) == 1
+        assert socket.part.volume == pytest.approx(648.4621, rel=1e-4)
+        # the snugtail socket wraps three sides, so it is much the larger half
+        assert socket.part.volume > 600
 
     def test_snugtail_ratios_exceed_max(self):
         with BuildPart(mode=Mode.PRIVATE) as test:
@@ -360,11 +372,15 @@ class TestStyleConditionalArguments:
         ],
     )
     def test_applicable_argument_accepted(self, style, param, value):
-        assert _subpart(style=style, **{param: value}).is_valid
+        part = _subpart(style=style, **{param: value})
+        assert part.volume > 0
+        assert part.bounding_box().size.Z > 0
 
     @pytest.mark.parametrize("style", list(DovetailStyle))
     def test_defaults_never_raise(self, style):
-        assert _subpart(style=style).is_valid
+        part = _subpart(style=style)
+        assert part.volume > 0
+        assert part.bounding_box().size.Z > 0
 
 
 class TestDovetailSplit:
