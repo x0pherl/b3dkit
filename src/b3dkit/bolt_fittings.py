@@ -254,7 +254,7 @@ class NutCut(BasePartObject):
         with BuildPart(Location((0, 0, head_depth))) as cut:
             with BuildSketch():
                 RegularPolygon(radius=head_radius, side_count=6)
-            extrude(amount=-head_depth)
+            extrude(amount=head_depth)
             Cylinder(
                 radius=shaft_radius,
                 height=shaft_length,

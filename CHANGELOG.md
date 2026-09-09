@@ -7,6 +7,39 @@ ship in minor releases.
 
 ## [Unreleased]
 
+### Changed
+
+- **`NutCut` now sits on the origin rather than straddling it.** The recess ran
+  from `-head_depth` to `0` while the shaft began at `+head_depth`, so the two
+  never met: the cutter came back as two solids with a `head_depth` gap, and
+  subtracting it left a membrane the bolt could not pass through. It is now one
+  solid spanning `0` to `head_depth + shaft_length`.
+
+  **This moves the cutter.** It previously had to be positioned *below* a
+  surface to work; it can now be placed *on* one. Anything calling `NutCut` and
+  compensating for the old placement needs that compensation removed.
+
+- **`dovetail_subpart` no longer adds each click-fit divot twice.** One copy
+  landed outside the part as a free-floating sliver. Only geometry using
+  `click_fit_radius` is affected; the tail's fused solid is unchanged and the
+  socket's moves by 0.02%.
+
+- **A positive `vertical_offset` no longer cuts the dovetail socket in two.**
+  Tails, `vertical_offset=0` and negative offsets are all unchanged.
+
+### Known issues
+
+Found while adding solid-count assertions, all pre-existing and all invisible to
+the `is_valid` checks that used to stand in for them:
+
+- `TwistSnapConnector` returns five solids: a base and four snapfits that meet
+  only on a shared plane and never fuse.
+- `HexWall` can return partial hexagons clipped at the bounds as separate
+  slivers, depending on how the grid divides the given width.
+- `SNUGTAIL` splits its own tail into disconnected fins on parts wider than
+  about 30mm. Pinned by `TestSnugtailWidthLimit`.
+
+
 ## [0.4.0] - 2026-09-08
 
 ### Removed
