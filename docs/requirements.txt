@@ -1,0 +1,12 @@
+# Documentation-only dependencies.
+#
+# ReadTheDocs previously installed the package itself, which drags in build123d
+# and the OpenCascade wheels to render Markdown that needs neither. mkdocstrings
+# reads the source with griffe, which analyses statically and does not import
+# b3dkit, so nothing here needs a CAD kernel.
+mkdocs>=1.6.1
+mkdocs-material>=9.7.6
+markdown-include>=0.8.1
+mkdocstrings[python]>=0.27
+# used only to pretty-print generated signatures
+black>=25.9.0

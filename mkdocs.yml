@@ -1,5 +1,8 @@
 site_name: b3dkit
 site_url: https://b3dkit.readthedocs.io/
+site_description: build123d utilities for parts that are printed and assembled
+repo_url: https://github.com/x0pherl/b3dkit
+edit_uri: edit/main/docs/
 theme:
   name: material
   features:
@@ -7,26 +10,58 @@ theme:
     - navigation.expand
     - navigation.path
     - toc.integrate
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: null
+            merge_init_into_class: true
+            separate_signature: true
+            show_signature_annotations: true
+            show_source: false
+            members_order: source
+            heading_level: 3
+
 markdown_extensions:
   - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
   - toc:
       toc_depth: 3
+      permalink: true
   - markdown_include.include:
       base_path: .
 nav:
   - Overview: index.md
   - Developer's Guide:
-    - Antichamfer: antichamfer.md
+    - Anti Chamfer: antichamfer.md
     - Ball Socket: ball_socket.md
     - Basic Shapes: basic_shapes.md
     - Bolt Fittings: bolt_fittings.md
-    - clickfit: click_fit.md
-    - dovetail: dovetail.md
-    - HexWall: hexwall.md
+    - Click Fit: click_fit.md
+    - Dovetail: dovetail.md
+    - Hex Wall: hexwall.md
     - High Top Slide Box: high_top_slide_box.md
     - Point: point.md
     - Slide Box: slide_box.md
-    - twist_snap: twist_snap.md
+    - Twist Snap: twist_snap.md
+  - API Reference:
+    - Overview: reference/index.md
+    - antichamfer: reference/antichamfer.md
+    - ball_socket: reference/ball_socket.md
+    - basic_shapes: reference/basic_shapes.md
+    - bolt_fittings: reference/bolt_fittings.md
+    - click_fit: reference/click_fit.md
+    - dovetail: reference/dovetail.md
+    - hexwall: reference/hexwall.md
+    - high_top_slide_box: reference/high_top_slide_box.md
+    - point: reference/point.md
+    - slide_box: reference/slide_box.md
+    - twist_snap: reference/twist_snap.md

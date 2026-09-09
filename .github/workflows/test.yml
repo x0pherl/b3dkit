@@ -79,3 +79,21 @@ jobs:
       - run: python -m pip install --upgrade pip ruff black
       - run: ruff check .
       - run: black --check .
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install documentation dependencies only
+        # No build123d here on purpose: mkdocstrings reads the source with
+        # griffe, which analyses statically. If this job ever needs a CAD
+        # kernel, something has started importing the package to build docs.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r docs/requirements.txt
+      - name: Build the site
+        run: mkdocs build --strict
