@@ -954,7 +954,16 @@ def dovetail_subpart(
         current_floor = (
             part.bounding_box().min.Z
             if vertical_offset <= 0
-            else part.bounding_box().min.Z + abs(vertical_offset) + vertical_tolerance
+            # Must match the straightened slab's top_z above, which uses
+            # vertical_tolerance_adjustment. Using the raw vertical_tolerance
+            # here agreed for the tail, where the adjustment is +tolerance, and
+            # disagreed for the socket, where it is -tolerance: the two slabs
+            # then missed each other by 2 * vertical_tolerance, cutting a slot
+            # clean through the socket and leaving it in two pieces. The
+            # vertical_offset < 0 branch below already uses the adjustment.
+            else part.bounding_box().min.Z
+            + abs(vertical_offset)
+            + vertical_tolerance_adjustment
         )
         add(
             _subpart_slab(
