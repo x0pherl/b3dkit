@@ -10,75 +10,15 @@ The high top slide box system creates a box with a base and a sliding lid that m
 
 ### high_top_slide_box
 
-```python
-def high_top_slide_box(
-    base_part: Part,
-    top_height: float,
-    rail_height: float,
-    wall_thickness: float,
-    rail_angle: float = 0,
-    divot_radius: float = 0.5,
-    tolerance: float = 0.2,
-) -> Compound
-```
-
 Creates a complete slide box with both the base and lid components. Returns a compound containing both parts positioned for display or printing.
-
-**Arguments:**
-- `base_part` (Part): The base part that defines the outer dimensions of the box
-- `top_height` (float): Height of the sliding top portion in millimeters
-- `rail_height` (float): Height of the rail system that guides the sliding motion
-- `wall_thickness` (float): Thickness of the box walls in millimeters
-- `rail_angle` (float, default=0): Angle of the rails in degrees for smoother sliding
-- `divot_radius` (float, default=0.5): Radius of positioning divots; set to 0 to disable
-- `tolerance` (float, default=0.2): Clearance between moving parts in millimeters
-
-**Returns:**
-- `Compound`: A compound containing the lid (rotated for printing) and base parts
 
 ### high_top_slide_box_lid
 
-```python
-def high_top_slide_box_lid(
-    base_part: Part,
-    top_height: float,
-    rail_height: float,
-    wall_thickness: float,
-    rail_angle: float = 0,
-    divot_radius: float = 0.5,
-    tolerance: float = 0.2,
-) -> Part
-```
-
 Creates only the sliding lid component of the box. This is useful when you need to print or modify just the lid.
-
-**Arguments:**
-- Same as `high_top_slide_box`
-
-**Returns:**
-- `Part`: The sliding lid part with rails and divots
 
 ### high_top_slide_box_base
 
-```python
-def high_top_slide_box_base(
-    base_part: Part,
-    top_height: float,
-    rail_height: float,
-    wall_thickness: float,
-    rail_angle: float = 0,
-    divot_radius: float = 0.5,
-    tolerance: float = 0.2,
-) -> Part
-```
-
 Creates only the base component of the box. This includes the hollowed-out interior and the rail channels that guide the lid.
-
-**Arguments:**
-- Same as `high_top_slide_box`
-
-**Returns:**
-- `Part`: The base part with hollowed interior and rail channels
 
 ## Dimension requirements
 
@@ -117,7 +57,7 @@ Divots provide tactile feedback and help position the lid. They can be disabled 
 
 ```python
 from build123d import *
-from b3dkit.high_top_slide_box import high_top_slide_box
+from b3dkit import high_top_slide_box, high_top_slide_box_base, high_top_slide_box_lid
 
 # Create a base shape
 with BuildPart() as base_box:
@@ -156,6 +96,9 @@ precision_box = high_top_slide_box(
 
 ```python
 # For larger items with looser tolerances
+with BuildPart() as large_base:
+    Box(80, 60, 40, align=(Align.CENTER, Align.CENTER, Align.MIN))
+
 storage_box = high_top_slide_box(
     base_part=large_base.part,
     top_height=15,

@@ -10,66 +10,23 @@ The slide box system creates a box with a base and a sliding lid that moves hori
 
 ### slide_box
 
-```python
-def slide_box(
-    part: Part,
-    wall_thickness: float = 2,
-    top_offset: float = 0,
-    thumb_radius: float = 5,
-    x_straighten_distance: float = 0,
-    tolerance: float = 0.15,
-    divot_radius: float = 0,
-) -> Compound
-```
-
 Creates a complete slide box with both the base and lid components. The lid features a tapered design for smooth sliding and secure positioning.
 
 Returns a `Compound` labelled `slide box` with two children, `box` and `lid`. The lid is returned in its print orientation (flipped face-down). The parts are co-located rather than laid out for a print bed; call build123d's `pack()` yourself if you want them arranged:
 
 ```python
-from build123d import pack
-arranged = pack(slide_box(base_box.part).children, padding=5)
+from build123d import Align, Box, BuildPart, Mode, pack
+from b3dkit import slide_box
+
+with BuildPart(mode=Mode.PRIVATE) as base:
+    Box(40, 25, 15, align=(Align.CENTER, Align.CENTER, Align.MIN))
+
+arranged = pack(slide_box(base.part).children, padding=5)
 ```
-
-**Arguments:**
-- `part` (Part): The base part that defines the outer dimensions of the box
-- `wall_thickness` (float, default=2): Thickness of the box walls in millimeters
-- `top_offset` (float, default=0): Vertical offset from the top for the sliding section
-- `thumb_radius` (float, default=5): Radius of the thumb grip cutout in millimeters; set to 0 to disable
-- `x_straighten_distance` (float, default=0): Distance from edges where the taper becomes straight
-- `tolerance` (float, default=0.15): Clearance between sliding parts in millimeters
-- `divot_radius` (float, default=0): Radius of positioning divots; set to 0 to disable
-
-**Returns:**
-- `Compound`: A compound labelled `slide box` with two children, `box` and `lid`, co-located and with the lid in print orientation
 
 ### slide_lid
 
-```python
-def slide_lid(
-    part: Part,
-    wall_thickness: float = 2,
-    tolerance: float = 0.15,
-    top_offset: float = 0,
-    thumb_radius: float = 5,
-    x_straighten_distance: float = 0,
-    divot_radius: float = 0,
-) -> Part
-```
-
 Creates only the sliding lid component of the box. This is useful when you need to print or modify just the lid.
-
-**Arguments:**
-- `part` (Part): The base part that defines the outer dimensions
-- `wall_thickness` (float, default=2): Thickness of the box walls in millimeters
-- `tolerance` (float, default=0.15): Clearance between sliding parts in millimeters
-- `top_offset` (float, default=0): Vertical offset from the top for the sliding section
-- `thumb_radius` (float, default=5): Radius of the thumb grip cutout in millimeters
-- `x_straighten_distance` (float, default=0): Distance from edges where the taper becomes straight
-- `divot_radius` (float, default=0): Radius of positioning divots
-
-**Returns:**
-- `Part`: The sliding lid part with taper and optional thumb grip
 
 ## Design Principles
 
@@ -114,7 +71,7 @@ Use `x_straighten_distance` when:
 
 ```python
 from build123d import *
-from b3dkit.slide_box import slide_box
+from b3dkit import slide_box, slide_lid
 
 # Create a base shape
 with BuildPart() as base_box:
@@ -173,7 +130,7 @@ storage_box = slide_box(
 with BuildPart() as textured_base:
     Box(50, 30, 20, align=(Align.CENTER, Align.CENTER, Align.MIN))
     # Add text or logo at the top
-    with BuildSketch(base_textured.faces().sort_by(Axis.Z)[-1]):
+    with BuildSketch(textured_base.faces().sort_by(Axis.Z)[-1]):
         Text("TOOLS", font_size=8)
     extrude(amount=-1, mode=Mode.SUBTRACT)
 

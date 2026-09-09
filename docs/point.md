@@ -7,7 +7,7 @@ The `Point` module provides a set of functions and methods to work with 2D point
 ## Point
 
 The `Point` class Represents a point in 2D space. Instantiating a point is as simple as:
-```
+```python
 from b3dkit import Point
 Point(1,3)
 ```
@@ -23,7 +23,7 @@ A `Point` needs both coordinates: `Point(1)` raises `TypeError`, and a sequence 
 Points are immutable. `related_point`, `midpoint` and the rest all return new
 `Point` objects, and assigning to `x` or `y` raises `FrozenInstanceError`.
 Once you've defined a point, you can access the x or y values through a variety of means:
-```
+```python
 p = Point(1,3)
 p.x # returns the x coordinate (1)
 p.y # returns the y coordinate (3)
@@ -36,21 +36,23 @@ p[1] # returns the y coordinate (3)
 #### angle_to
 - `angle_to(self, point: Point) -> float`
   - Identifies the angle to a second point from the current point.
-    ```
+    ```python
     Point(0,0).angle_to(Point(1,1)) # returns 45.0
     ```
 
 #### distance_to
 - `distance_to(point: Point) -> float`
   - Identifies the distance to a second point from the current point.
-    ```
+    ```python
     Point(0,10).distance_to(Point(10,10)) # returns 10.0
     ```
 
 #### axial_distance_to
 - `axial_distance_to(point: Point, axis: Axis) -> float`
   - Identifies the distance along a single Axis to a second point from the current point.
-    ```
+    ```python
+    from build123d import Axis
+
     Point(0,10).axial_distance_to(Point(10,-10), Axis.X) # returns 10.0
     Point(0,10).axial_distance_to(Point(10,-10), Axis.Y) # returns 20.0
     ```
@@ -68,9 +70,11 @@ Vector(Point(1,3)) # Vector(1, 3, 0)
 #### related_point
 - `related_point(angle: float, distance: float) -> Point`
   - Identifies a second point at a specified angle and distance from the current point.
-    ```
-     Point(0,0).related_point(45, math.sqrt(2))
-     # returns Point(x=1.0000000000000002, y=1.0000000000000002)
+    ```python
+    import math
+
+    Point(0,0).related_point(45, math.sqrt(2))
+    # returns Point(x=1.0000000000000002, y=1.0000000000000002)
     ```
 
 #### related_point_by_axis
@@ -82,7 +86,7 @@ Vector(Point(1,3)) # Vector(1, 3, 0)
     - `axis`: Either `Axis.X` or `Axis.Y` - the axis along which to measure the distance (defaults to `Axis.X`)
   - **Returns:** A new point at the specified angle with the given axis distance
   - **Note:** This method requires importing `Axis` from `build123d`
-    ```
+    ```python
     from build123d import Axis
     from b3dkit import Point
     
@@ -103,7 +107,7 @@ Vector(Point(1,3)) # Vector(1, 3, 0)
 
 - `midpoint(point1: Point, point2: Point) -> Point`
   - Finds the midpoint between two points.
-    ```
+    ```python
     from b3dkit.point import midpoint
     midpoint(Point(0,0), Point(10,10))
     # returns Point(x=5.0, y=5.0)
@@ -112,7 +116,7 @@ Vector(Point(1,3)) # Vector(1, 3, 0)
 - `shifted_midpoint(point1: Point, point2: Point, shift: float) -> Point`
   - Finds the midpoint between two points, shifted by `shift` towards the second point.
   This can be useful when you need to make something slightly off center between two arbitrary points, or when adding points at regular midpoints of a line
-    ```
+    ```python
     from b3dkit.point import shifted_midpoint
     shifted_midpoint(Point(0,0), Point(3,3), 1)
     # returns Point(x=2.2071067811865475, y=2.2071067811865475)
