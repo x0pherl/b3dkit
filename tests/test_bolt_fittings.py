@@ -9,10 +9,6 @@ These tests cover all functions and their parameters to ensure:
 - Mutation testing coverage
 """
 
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-from unittest.mock import patch
-
 import pytest
 from build123d import (
     Part,
@@ -26,7 +22,6 @@ from b3dkit.bolt_fittings import (
     SquareNutSinkhole,
     TeardropBoltCutSinkhole,
 )
-from conftest import module_path
 
 
 class TestTeardropBoltCutSinkhole:
@@ -206,10 +201,3 @@ class TestScrewCut:
         assert heatsink.bounding_box().size.X == pytest.approx(20)
         assert heatsink.bounding_box().size.Y == pytest.approx(20)
         assert heatsink.bounding_box().size.Z == pytest.approx(11)
-
-
-class TestBareExecution:
-    def test_bare_execution(self):
-        with (patch("ocp_vscode.show"),):
-            loader = SourceFileLoader("__main__", module_path("bolt_fittings"))
-            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

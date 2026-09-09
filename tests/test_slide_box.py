@@ -1,12 +1,7 @@
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-from unittest.mock import patch
-
 import pytest
 from build123d import Align, Axis, Box, BuildPart, Plane, fillet, section
 
 from b3dkit.slide_box import _slider_template, slide_box
-from conftest import module_path
 
 
 class TestSlideBox:
@@ -20,19 +15,6 @@ class TestSlideBox:
         )
         assert sb.children[0].is_valid
         assert sb.children[1].is_valid
-
-    def test_direct_run(self):
-
-        with (
-            patch("build123d.export_stl"),
-            patch("pathlib.Path.mkdir"),
-            patch("pathlib.Path.exists"),
-            patch("pathlib.Path.is_dir"),
-            patch("ocp_vscode.show"),
-            patch("ocp_vscode.save_screenshot"),
-        ):
-            loader = SourceFileLoader("__main__", module_path("slide_box"))
-            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
 
 class TestSliderDivots:

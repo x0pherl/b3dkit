@@ -1,14 +1,10 @@
 from collections import defaultdict
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
 from math import atan2, cos, degrees, sin
-from unittest.mock import patch
 
 import pytest
 from build123d import Align, Box, Cone, Cylinder
 
 from b3dkit.hexwall import HexCylindrical, HexWall
-from conftest import module_path
 
 
 def _cone():
@@ -26,19 +22,6 @@ class TestHexWall:
         # branch that bumps it odd so the hex grid stays centered
         pattern = HexWall(13, 10, 1, 1, 0.2)
         assert pattern.is_valid
-
-    def test_direct_run(self):
-
-        with (
-            patch("build123d.export_stl"),
-            patch("pathlib.Path.mkdir"),
-            patch("pathlib.Path.exists"),
-            patch("pathlib.Path.is_dir"),
-            patch("ocp_vscode.show"),
-            patch("ocp_vscode.save_screenshot"),
-        ):
-            loader = SourceFileLoader("__main__", module_path("hexwall"))
-            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
 
 class TestHexCylindrical:

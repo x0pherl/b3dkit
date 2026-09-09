@@ -1,7 +1,3 @@
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-from unittest.mock import patch
-
 import pytest
 from build123d import (
     Align,
@@ -16,7 +12,6 @@ from build123d import (
 )
 
 from b3dkit.antichamfer import anti_chamfer
-from conftest import module_path
 
 
 class TestAntiChamfer:
@@ -135,19 +130,6 @@ class TestAntiChamfer:
         assert ac1.is_valid
         assert ac2.is_valid
         assert bp.part.volume == ac1.volume == ac2.volume
-
-    def test_direct_run(self):
-
-        with (
-            patch("build123d.export_stl"),
-            patch("pathlib.Path.mkdir"),
-            patch("pathlib.Path.exists"),
-            patch("pathlib.Path.is_dir"),
-            patch("ocp_vscode.show"),
-            patch("ocp_vscode.save_screenshot"),
-        ):
-            loader = SourceFileLoader("__main__", module_path("antichamfer"))
-            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
 
 class TestAntiChamferBuilderContract:

@@ -1,7 +1,3 @@
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-from unittest.mock import patch
-
 import pytest
 from build123d import Align, Axis, Box, BuildPart, Compound, Part, fillet
 
@@ -12,7 +8,6 @@ from b3dkit.high_top_slide_box import (
     high_top_slide_box_base,
     high_top_slide_box_lid,
 )
-from conftest import module_path
 
 
 def assert_single_solid(part, name="part"):
@@ -283,19 +278,6 @@ class TestHighTopSlideBox:
         assert len(result.children) == 2
         assert_single_solid(result.children[0], "lid")
         assert_single_solid(result.children[1], "base")
-
-    def test_direct_run(self):
-        """Test that the module can be run directly without errors."""
-        with (
-            patch("ocp_vscode.show"),
-            (
-                patch("build123d.export_stl")
-                if hasattr(__import__("build123d"), "export_stl")
-                else patch("builtins.open")
-            ),
-        ):
-            loader = SourceFileLoader("__main__", module_path("high_top_slide_box"))
-            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))
 
     def test_parameter_validation_edge_cases(self, small_base_part):
         """Test edge cases for parameter validation."""

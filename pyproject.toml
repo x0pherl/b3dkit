@@ -63,8 +63,15 @@ build-backend = "hatchling.build"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 addopts = "--strict-markers"
-markers = [
-    "manual: marks tests that can only be executed manually",
+filterwarnings = [
+    # b3dkit's own warnings are failures; we control those.
+    "error",
+    # Everything below is raised inside the dependency stack, not by b3dkit.
+    # ezdxf, reached through build123d, calls pyparsing's pre-snake_case API.
+    "ignore::DeprecationWarning:ezdxf.*",
+    "ignore::DeprecationWarning:pyparsing.*",
+    "default::DeprecationWarning:build123d.*",
+    "default::PendingDeprecationWarning:build123d.*",
 ]
 
 [tool.black]

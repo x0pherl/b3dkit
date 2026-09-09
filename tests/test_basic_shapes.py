@@ -1,7 +1,3 @@
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
-from unittest.mock import patch
-
 import pytest
 from build123d import Align, Part
 
@@ -19,7 +15,6 @@ from b3dkit.basic_shapes import (
     opposite_length,
     radius_to_apothem,
 )
-from conftest import module_path
 
 
 class TestApothemConversions:
@@ -265,13 +260,3 @@ class TestDiamondCylinder:
         assert db.Y == pytest.approx(pb.Y)
         assert db.Z == pytest.approx(pb.Z)
         assert diamond.volume == pytest.approx(poly4.volume)
-
-
-class TestBareExecution:
-    def test_bare_execution(self):
-        with (
-            patch("pathlib.Path.mkdir"),
-            patch("ocp_vscode.show"),
-        ):
-            loader = SourceFileLoader("__main__", module_path("basic_shapes"))
-            loader.exec_module(module_from_spec(spec_from_loader(loader.name, loader)))

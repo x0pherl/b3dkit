@@ -1,6 +1,20 @@
 [run]
+source = src/b3dkit
+# `*test*` also matched any source path containing "test", so it was scoped to
+# the test directory instead.
 omit =
-    *test*
-    *conftest*
+    tests/*
+
 [report]
 show_missing = True
+# CONTRIBUTING.md declares a 90% floor with no ratchet. Enforced here so the
+# number is a gate rather than a suggestion.
+fail_under = 90
+exclude_lines =
+    pragma: no cover
+    # The __main__ blocks are demos, not library code. They were previously
+    # executed by ten tests that asserted nothing, purely so these lines would
+    # count toward coverage; deleting those tests is what this excludes for.
+    if __name__ == .__main__.:
+    # Raised only when the package is not installed, e.g. run from a source tree.
+    except PackageNotFoundError:
