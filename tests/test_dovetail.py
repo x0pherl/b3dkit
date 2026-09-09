@@ -432,3 +432,116 @@ class TestDefaultGeometryUnchanged:
     ):
         part = _subpart(style=style, subpart=section)
         assert part.volume == pytest.approx(expected_volume, abs=1e-4)
+
+
+def _narrow_box() -> Part:
+    """A part narrow enough that snugtail's fins meet.
+
+    Snugtail splits its own tail into disconnected fins once the part is about
+    30mm wide -- see TestSnugtailWidthLimit -- so the single-solid tests use a
+    width below that, to guard the defects they are about is_valid rather than
+    that separate one.
+    """
+    with BuildPart(mode=Mode.PRIVATE) as test:
+        Box(20, 50, 10, align=(Align.CENTER, Align.CENTER, Align.MIN))
+    return test.part
+
+
+def _narrow_subpart(**kwargs) -> Part:
+    return dovetail_subpart(_narrow_box(), Point(-10, 0), Point(10, 0), **kwargs)
+
+
+class TestSubpartsAreSingleSolids:
+    """A subpart must come back in one piece, whatever the arguments.
+
+    Two defects hid here for the library's whole history, both invisible to an
+    is_valid assertion because every piece was individually a valid solid.
+
+    A positive vertical_offset built the two Z-slabs with mismatched tolerance
+    terms, cutting a slot clean through the socket and leaving it in two pieces
+    with a tenth of its volume gone.
+
+    click_fit_radius added each divot twice: a Divot is a BasePartObject, so it
+    registers into the enclosing builder on construction, and the code then
+    added a rotated copy as well. Because rotate() turns about the global
+    origin, the builder's Location translated that copy again and it landed
+    outside the part as a free-floating sliver.
+    """
+
+    @pytest.mark.parametrize("style", list(DovetailStyle))
+    @pytest.mark.parametrize("vertical_offset", [0.0, 0.5, -0.5])
+    @pytest.mark.parametrize("click_fit_radius", [0.0, 0.5])
+    @pytest.mark.parametrize("subpart", [DovetailSubpart.TAIL, DovetailSubpart.SOCKET])
+    def test_subpart_is_one_solid(
+        self, style, vertical_offset, click_fit_radius, subpart
+    ):
+        part = _narrow_subpart(
+            style=style,
+            subpart=subpart,
+            vertical_offset=vertical_offset,
+            click_fit_radius=click_fit_radius,
+        )
+        solids = part.solids()
+        assert len(solids) == 1, (
+            f"{style.name} {subpart.name} at vertical_offset={vertical_offset}, "
+            f"click_fit_radius={click_fit_radius} came back as {len(solids)} "
+            f"solids: {sorted(round(s.volume, 4) for s in solids)}"
+        )
+
+    @pytest.mark.parametrize("style", list(DovetailStyle))
+    @pytest.mark.parametrize("vertical_offset", [0.0, 0.5, -0.5])
+    def test_tail_and_socket_account_for_the_whole_part(self, style, vertical_offset):
+        """Together the two subparts should be the original, less tolerance.
+
+        The vertical_offset defect showed up here first: the pair summed to 899
+        of a 1000mm3 box, because the slot cut through the socket removed
+        material that ended up in neither half.
+        """
+        kwargs = dict(style=style, vertical_offset=vertical_offset)
+        total = sum(
+            _narrow_subpart(subpart=s, **kwargs).volume
+            for s in (DovetailSubpart.TAIL, DovetailSubpart.SOCKET)
+        )
+        box_volume = 20 * 50 * 10
+        assert total == pytest.approx(box_volume, rel=0.02), (
+            f"{style.name} at vertical_offset={vertical_offset}: tail and socket "
+            f"sum to {total:.1f}, not the {box_volume} of the part they split"
+        )
+
+
+class TestSnugtailWidthLimit:
+    """Snugtail splits its own tail into fins on parts wider than about 30mm.
+
+    Not a regression: v0.1.5 produces byte-identical geometry. The tail comes
+    back as two or three disconnected pieces with no sliver involved, so it is
+    unrelated to the divot and vertical_offset defects fixed alongside these
+    tests. It lives in the snugtail outline maths, which was tuned against
+    physical prints, so it is recorded here rather than guessed at.
+
+    These tests pin the current boundary. If a fix lands, they should fail and
+    be replaced by an assertion that wide parts work.
+    """
+
+    @staticmethod
+    def _tail_solids(width):
+        with BuildPart(mode=Mode.PRIVATE) as test:
+            Box(width, 60, 30, align=(Align.CENTER, Align.CENTER, Align.MIN))
+        return len(
+            dovetail_subpart(
+                test.part,
+                Point(-width / 2, 0),
+                Point(width / 2, 0),
+                subpart=DovetailSubpart.TAIL,
+                style=DovetailStyle.SNUGTAIL,
+                click_fit_radius=0,
+            ).solids()
+        )
+
+    @pytest.mark.parametrize("width", [20, 24, 28])
+    def test_narrow_parts_give_one_solid(self, width):
+        assert self._tail_solids(width) == 1
+
+    @pytest.mark.parametrize("width", [30, 36, 40])
+    def test_wide_parts_currently_fragment(self, width):
+        """Documents a known defect. Delete this when snugtail is fixed."""
+        assert self._tail_solids(width) > 1

@@ -528,18 +528,10 @@ def _traditional_subpart_divots(
             ),
             mode=topmode,
         ):
-            add(
-                Divot(
-                    click_fit_radius,
-                    positive=topmode == Mode.ADD,
-                    extend_base=True,
-                )
-                .rotate(
-                    Axis.X,
-                    (90 * (-1 if vertical_offset < 0 else 1))
-                    + adjusted_top_divot_angle,
-                )
-                .rotate(Axis.Y, cut_angle),
+            Divot(
+                click_fit_radius,
+                positive=topmode == Mode.ADD,
+                extend_base=True,
             )
         #####################################
         # Bottom divots
@@ -562,29 +554,20 @@ def _traditional_subpart_divots(
             ),
             mode=bottommode,
         ):
-            add(
-                Divot(
-                    click_fit_radius,
-                    positive=bottommode == Mode.ADD,
-                    extend_base=True,
-                )
-                .rotate(
-                    Axis.X,
-                    (90 * (1 if vertical_offset < 0 else -1)) + scarf_angle,
-                )
-                .rotate(Axis.Y, cut_angle),
+            Divot(
+                click_fit_radius,
+                positive=bottommode == Mode.ADD,
+                extend_base=True,
             )
         with BuildPart(
             Location((end_side.x, end_side.y, click_fit_radius * 2)),
             mode=bottommode,
         ):
-            add(
-                Divot(click_fit_radius, positive=True, extend_base=True)
-                .rotate(
-                    Axis.X,
-                    (90 * (1 if vertical_offset < 0 else -1)) + scarf_angle,
-                )
-                .rotate(Axis.Y, cut_angle),
+            Divot(
+                click_fit_radius,
+                # was hardcoded True while the sibling divot above derives it
+                positive=bottommode == Mode.ADD,
+                extend_base=True,
             )
 
     return divotedpart.part
