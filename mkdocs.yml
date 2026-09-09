@@ -52,6 +52,7 @@ nav:
     - Point: point.md
     - Slide Box: slide_box.md
     - Twist Snap: twist_snap.md
+  - Contributing: CONTRIBUTING.md
   - API Reference:
     - Overview: reference/index.md
     - antichamfer: reference/antichamfer.md

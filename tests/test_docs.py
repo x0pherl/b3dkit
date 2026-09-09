@@ -15,7 +15,8 @@ import textwrap
 
 import pytest
 
-DOCS = pathlib.Path(__file__).resolve().parents[1] / "docs"
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+DOCS = ROOT / "docs"
 #: fences may be indented when nested inside a markdown list item, which is
 #: valid markdown and needs dedenting before the block will compile
 FENCE = re.compile(r"^([ \t]*)```python\n(.*?)^\1```", re.S | re.M)
@@ -25,7 +26,9 @@ def python_blocks(page: pathlib.Path) -> list[str]:
     return [textwrap.dedent(body) for _indent, body in FENCE.findall(page.read_text())]
 
 
-PAGES = sorted(p for p in DOCS.glob("*.md") if python_blocks(p))
+#: README.md is included verbatim by docs/index.md, so it is the published
+#: homepage and its examples must run like any other page's.
+PAGES = sorted(p for p in [*DOCS.glob("*.md"), ROOT / "README.md"] if python_blocks(p))
 
 
 @pytest.mark.parametrize("page", PAGES, ids=lambda p: p.name)
@@ -47,7 +50,7 @@ def test_page_examples_run(page):
 def test_every_page_with_code_uses_a_python_fence():
     """An untagged fence is not executed, so it can rot unnoticed."""
     offenders = []
-    for page in sorted(DOCS.glob("*.md")):
+    for page in sorted([*DOCS.glob("*.md"), ROOT / "README.md"]):
         text = page.read_text()
         for match in re.finditer(r"```(\w*)\n(.*?)```", text, re.S):
             lang, body = match.group(1), match.group(2)

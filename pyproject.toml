@@ -53,6 +53,7 @@ docs = [
 Homepage = "https://github.com/x0pherl/b3dkit"
 Issues = "https://github.com/x0pherl/b3dkit/issues"
 Documentation = "https://b3dkit.readthedocs.io"
+Changelog = "https://github.com/x0pherl/b3dkit/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["hatchling>=1.29.0"]

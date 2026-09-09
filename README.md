@@ -1,28 +1,76 @@
-# b3dkit Overview
+# b3dkit
 
- b3dkit is a general purpose library extending some of [build123d](https://github.com/gumyr/build123d)'s Parts and adding handy utility functions.
+Utilities for [build123d](https://github.com/gumyr/build123d) parts that have to be
+**printed and assembled**: splitting parts too big for the bed, snapping them
+together, fastening them, and venting them.
 
-It's grown to include some capabilities not required by that project. Useful components include:
+All linear dimensions are in millimeters and all angles are in degrees, matching
+build123d.
 
-- dovetail: Splits a build123d `Part` object into two parts that can easily be slid together with very tight tolerances. Useful when building parts larger than your printer's build volume. This includes a "snugtail" type that is uniquely suited to 3d printing and results in very strong bonds with a high surface area for friction to hold it in place, or glue to bond.
-- click_fit: a tapered profile that allows for better printing & assembly than a simple half Sphere to allow parts to "click" or snap into place when fit together. The extruded shape and the socket are both shaped carefully to allow a mix of easy assembly and good hold.
-- Point: a lightweight X,Y coordinate point object with some geometric functions built into the object.
-- HexWall: builds a field of hexagons with gaps in-between within a given set of bounds.
+## Installation
 
-# Documentation
+```bash
+pip install b3dkit
+```
 
-Complete developer documentation for b3dkit is maintained in the docs folder and on the [b3dkit documentation](https://b3dkit.readthedocs.io) site.
+Requires Python 3.11+ and build123d 0.11+. To run the `__main__` demo in each
+module, which previews parts in VS Code, install the viewer extra:
 
-# Fork from fb-lbrary
+```bash
+pip install b3dkit[viewer]
+```
 
-The b3dkit library began as a library specific to [Fender-Bender](https://github.com/x0pherl/fender-bender): a way to externalize and isolate some common utilities, functions, & methods from the  project. It has since grown to include many parts and utilities that are not used by fender-bender. As part of a major rewrite to adhere method names and usage to feel more like Build123d native usage, we've forked and renamed the project to b3dkit, to better reflect our current purpose.
+## What's in it
 
+| | |
+|---|---|
+| **dovetail** | Splits a `Part` into two that slide together with tight tolerances, for parts larger than your build volume. Includes a "snugtail" style suited to 3D printing, which wraps three sides for a large friction and glue surface. |
+| **click_fit** | A tapered divot that prints and assembles better than a half sphere, letting parts click into place. |
+| **twist_snap** | A connector and socket that lock with a twist, for joints meant to be opened repeatedly. |
+| **ball_socket** | A ball mount and matching socket. |
+| **bolt_fittings** | Bolt holes, countersinks, nut traps and heat-set insert recesses, sized for M3 by default. |
+| **hexwall** | A honeycomb of hexagonal holes, flat or wrapped around a cone or cylinder, for venting and lightening. |
+| **basic_shapes** | Rounded, polygonal, diamond and teardrop cylinders, plus the trigonometry helpers that place them. |
+| **antichamfer** | Extends a face outward with a taper, like a foot or flat crown moulding. |
+| **slide_box**, **high_top_slide_box** | Boxes with sliding lids. |
+| **Point** | A lightweight 2D point with the geometry helpers the rest of the library needs. |
 
-# Modifying the Source
-The included source files rely on the build123d library. I recommend following the build123d installation instructions.
+## Example
 
-# Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+```python
+from build123d import Align, Box, BuildPart, Mode
+from b3dkit import DovetailStyle, Point, dovetail_split
 
-# License
-This project is licensed under the terms of the [MIT](https://choosealicense.com/licenses/mit/) license
+with BuildPart(mode=Mode.PRIVATE) as oversized:
+    Box(50, 40, 50, align=(Align.CENTER, Align.CENTER, Align.MIN))
+
+# split it into a mating pair that fits the bed
+tail, socket = dovetail_split(
+    oversized.part,
+    Point(0, -20),
+    Point(0, 20),
+    style=DovetailStyle.SNUGTAIL,
+)
+```
+
+## Documentation
+
+Full documentation, including a generated API reference, is at
+[b3dkit.readthedocs.io](https://b3dkit.readthedocs.io).
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to
+discuss what you would like to change.
+
+## History
+
+b3dkit began as `fb-library`, a way to isolate common utilities from
+[Fender-Bender](https://github.com/x0pherl/fender-bender). It outgrew that
+project, and was renamed during a rewrite that reworked names and usage to feel
+closer to native build123d.
+
+## License
+
+Licensed under the terms of the [MIT](https://choosealicense.com/licenses/mit/)
+license.
