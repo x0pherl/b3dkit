@@ -7,6 +7,8 @@ ship in minor releases.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-09
+
 ### Changed
 
 - **`NutCut` now sits on the origin rather than straddling it.** The recess ran
@@ -144,6 +146,7 @@ the Python 3.11 floor.
 See the git history. b3dkit began as `fb-library`; the rename accompanied a
 rewrite that reworked names and usage to feel closer to native build123d.
 
-[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.0
 [0.4.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.4.0
 [0.3.2]: https://github.com/x0pherl/b3dkit/releases/tag/v0.3.2
