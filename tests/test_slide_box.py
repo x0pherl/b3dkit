@@ -35,7 +35,8 @@ class TestSliderDivots:
     """
 
     @pytest.fixture(scope="class")
-    def sketch(self):
+    @classmethod
+    def sketch(cls):
         with BuildPart() as blank:
             Box(60, 100, 20, align=(Align.CENTER, Align.CENTER, Align.MIN))
             fillet(blank.part.edges().filter_by(Axis.Z), radius=1.5)
