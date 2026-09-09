@@ -15,13 +15,21 @@ def _cone():
 class TestHexWall:
     def test_hexwall(self):
         pattern = HexWall(10, 10, 1, 1, 0.2)
-        assert pattern.is_valid
+        assert pattern.volume == pytest.approx(18.5680, rel=1e-4)
+        assert pattern.bounding_box().size.X == pytest.approx(10)
+        assert pattern.bounding_box().size.Y == pytest.approx(10)
+        # 3 solids: the field, plus a 0.1mm3 partial hexagon clipped at each of
+        # the left and right bounds. Suspect, but pinned rather than changed.
+        assert len(pattern.solids()) == 3
 
     def test_hexwall_forces_odd_column_count(self):
         # length=13/apothem=1 yields an even raw column count, exercising the
         # branch that bumps it odd so the hex grid stays centered
         pattern = HexWall(13, 10, 1, 1, 0.2)
-        assert pattern.is_valid
+        assert pattern.volume == pytest.approx(23.2053, rel=1e-4)
+        assert pattern.bounding_box().size.X == pytest.approx(13)
+        # the odd column count leaves no clipped hexagons at the bounds
+        assert len(pattern.solids()) == 1
 
 
 class TestHexCylindrical:

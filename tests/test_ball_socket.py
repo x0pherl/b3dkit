@@ -41,8 +41,11 @@ class TestBallSocket:
     @pytest.mark.parametrize("r,w", [(3, 2), (5, 1), (10, 2), (20, 4), (12.5, 3.5)])
     def test_ball_socket_param_dimensions(self, r, w):
         socket = BallSocket(r, wall_thickness=w)
-        assert socket.is_valid
+        assert len(socket.solids()) == 1
         bbox = socket.bounding_box()
+        # the socket encloses the ball plus a wall on each side
+        assert bbox.size.X == pytest.approx(2 * r + 2 * w)
+        assert socket.volume > 0
 
     def test_ball_socket_custom_wall_thickness(self):
         r, w = 10.0, 3.0

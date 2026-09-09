@@ -13,8 +13,14 @@ class TestSlideBox:
         sb = slide_box(
             base_box.part, wall_thickness=2, thumb_radius=3.5, divot_radius=0.5
         )
-        assert sb.children[0].is_valid
-        assert sb.children[1].is_valid
+        box, lid = sb.children
+        assert (box.label, lid.label) == ("box", "lid")
+        assert len(box.solids()) == 1
+        assert len(lid.solids()) == 1
+        assert box.volume == pytest.approx(4632.0405, rel=1e-4)
+        assert lid.volume == pytest.approx(1498.3503, rel=1e-4)
+        # the lid slides inside the box, so it must be narrower
+        assert lid.bounding_box().size.X < box.bounding_box().size.X
 
 
 class TestSliderDivots:

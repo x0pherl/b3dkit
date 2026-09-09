@@ -117,7 +117,10 @@ class TestAntiChamfer:
             Box(10, 10, 10)
 
         ac_part = anti_chamfer(bp.part.faces().filter_by(Axis.Z)[-1], -1.0, -0.5)
-        assert ac_part.is_valid
+        assert len(ac_part.solids()) == 1
+        # negative lengths still extend the face outward rather than cutting in
+        assert ac_part.volume == pytest.approx(1110.3333, rel=1e-4)
+        assert ac_part.volume > bp.part.volume
 
     def test_anti_chamfer_zero_length_values(self):
         """Test anti_chamfer with negative length values"""
