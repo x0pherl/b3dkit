@@ -7,6 +7,18 @@ ship in minor releases.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-01
+
+### Changed
+
+- **`slide_box` lids no longer intersect the box.** The lid was
+  `wall_thickness + tolerance` thick in a `wall_thickness` slot. `tolerance` is
+  now the total gap on every mating face, split evenly: the slot grows by half
+  and the lid shrinks by half, so the lid is `wall_thickness - tolerance / 2`
+  thick and its top stays flush. Box, lid and `slide_lid` geometry all change.
+- **`slide_box` divots now line up.** The box detents and lid bumps were placed
+  from different tolerances and sat up to `tolerance` apart.
+
 ## [0.5.0] - 2026-09-09
 
 ### Changed
@@ -146,7 +158,8 @@ the Python 3.11 floor.
 See the git history. b3dkit began as `fb-library`; the rename accompanied a
 rewrite that reworked names and usage to feel closer to native build123d.
 
-[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.1
 [0.5.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.0
 [0.4.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.4.0
 [0.3.2]: https://github.com/x0pherl/b3dkit/releases/tag/v0.3.2

@@ -7,7 +7,7 @@ They are exempt from the compatibility promise in ``__all__`` until that is
 settled.
 """
 
-from math import radians, tan
+from math import cos, radians, tan
 
 from build123d import (
     Align,
@@ -43,6 +43,13 @@ __all__ = [
 ]
 
 
+def _tapered_inset(clearance: float) -> float:
+    """
+    The horizontal shift that moves a tapered face ``clearance`` along its normal.
+    """
+    return clearance / cos(radians(_SLIDER_TAPER_ANGLE))
+
+
 def _divot_spacing(
     sketch_width: float,
     wall_thickness: float,
@@ -59,14 +66,18 @@ def _divot_spacing(
     tapered face. A grazing intersection leaves needle-thin slivers behind the
     boolean, so pull the pair far enough inboard that a divot only ever meets the
     flat underside.
+
+    The spacing is measured against the lid's tapered face, the narrower of the
+    two, so the box and lid templates place their divots identically.
     """
     half_width = sketch_width / 2
+    lid_clearance = -abs(tolerance) / 2
     # depth below the top of the template at the widest point of the divot
-    widest_depth = max(wall_thickness - divot_radius, 0)
+    widest_depth = max(wall_thickness + lid_clearance - divot_radius, 0)
     tapered_face = (
         half_width
         - wall_thickness
-        - abs(tolerance)
+        + _tapered_inset(lid_clearance)
         + widest_depth * tan(radians(_SLIDER_TAPER_ANGLE))
     )
     return (
@@ -89,13 +100,21 @@ def _slider_template(
 ) -> Part:
     """
     Create a slider part based on a sketch.
+
+    ``tolerance`` is the total gap between lid and box; the cut template grows
+    by half of it and the lid template shrinks by half of it. The top of the
+    template stays at the top of the sketch either way.
     """
+    clearance = abs(tolerance) / 2 * (1 if cut_template else -1)
     with BuildPart() as slider_part:
         with BuildSketch() as top_sketch:
-            offset(sketch, amount=-abs(tolerance) - (abs(wall_thickness)))
+            offset(
+                sketch,
+                amount=-abs(wall_thickness) + _tapered_inset(clearance),
+            )
         extrude(
             top_sketch.sketch,
-            amount=-wall_thickness - abs(tolerance),
+            amount=-wall_thickness - clearance,
             taper=-_SLIDER_TAPER_ANGLE,
         )
         cross_section = section(
@@ -113,13 +132,12 @@ def _slider_template(
         )
         if divot_radius > 0:
             # a divot wider than half the wall would overhang the open front of
-            # the template; keep it far enough back to meet only the underside
-            divot_y = max(
-                sketch.bounding_box().min.Y + wall_thickness / 2,
-                slider_part.part.bounding_box().min.Y + divot_radius + divot_radius / 5,
+            # the part; keep it far enough back to meet only the underside
+            divot_y = sketch.bounding_box().min.Y + max(
+                wall_thickness / 2, divot_radius + divot_radius / 5
             )
             with BuildPart(
-                Location((0, divot_y, -wall_thickness), (180, 0, 0)),
+                Location((0, divot_y, -wall_thickness - clearance), (180, 0, 0)),
                 mode=Mode.ADD,
             ):
                 with GridLocations(
@@ -161,7 +179,7 @@ def slide_lid(
     args:
         - part: the part defining the box's outer dimensions
         - wall_thickness: the thickness of the box walls
-        - tolerance: the clearance between the lid and the base; 0.1 is a tight
+        - tolerance: the total gap between the lid and the base; 0.1 is a tight
             fit, 0.15 the default, 0.2 and above loose
         - top_offset: how far below the top of the part the sliding section sits,
             for parts with features at the top worth preserving
@@ -247,7 +265,8 @@ def slide_box(
         - thumb_radius: the radius of the thumb-grip cutout; 0 disables it
         - x_straighten_distance: how much of the slider stays straight at the
             edges, which stops wide lids binding at the corners
-        - tolerance: the clearance between the lid and the base
+        - tolerance: the total gap between the lid and the base, split evenly
+            between the slot and the lid
         - divot_radius: the radius of the click-fit positioning divots; 0
             disables them
 
@@ -260,7 +279,7 @@ def slide_box(
     lid_cut_template = _slider_template(
         cross_section,
         wall_thickness,
-        tolerance=0,
+        tolerance=tolerance,
         top_offset=top_offset,
         x_straighten_distance=x_straighten_distance,
         divot_radius=divot_radius,
@@ -309,5 +328,11 @@ if __name__ == "__main__":
         Box(20, 44, 14, align=(Align.CENTER, Align.CENTER, Align.MIN))
         fillet(base_box.part.edges().filter_by(Axis.Z), radius=1.5)
 
-    sb = slide_box(base_box.part, wall_thickness=2, thumb_radius=3.5, divot_radius=0.5)
+    sb = slide_box(
+        base_box.part,
+        wall_thickness=2,
+        thumb_radius=3.5,
+        divot_radius=0.5,
+        tolerance=0.3,
+    )
     show(sb, reset_camera=Camera.KEEP)

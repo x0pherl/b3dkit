@@ -45,7 +45,9 @@ The `x_straighten_distance` parameter controls how much of the sliding mechanism
 ## Design Considerations
 
 ### Tolerances
-The `tolerance` parameter controls the fit between the lid and base:
+The `tolerance` parameter is the total gap between the lid and base on every mating face, split evenly between the two: the slot grows by half of it and the lid shrinks by half of it. The lid is `wall_thickness - tolerance / 2` thick, with its top flush with the box.
+
+Typical values:
 - **0.1mm**: Very tight fit, may require force to operate
 - **0.15mm**: Standard fit (default) - smooth operation with minimal play
 - **0.2-0.25mm**: Loose fit for rough printing or materials that swell
