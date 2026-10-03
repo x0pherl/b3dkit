@@ -130,6 +130,12 @@ def _slider_template(
                 cross_section, amount=x_straighten_distance * 2 + wall_thickness * 2
             )
         )
+        fillet(
+            slider_part.edges() - slider_part.faces().filter_by(Plane.XY).edges(),
+            wall_thickness * 0.025,
+        )
+        fillet(slider_part.faces().sort_by(Axis.Z)[0].edges(), wall_thickness * 0.025)
+
         if divot_radius > 0:
             # a divot wider than half the wall would overhang the open front of
             # the part; keep it far enough back to meet only the underside
@@ -335,4 +341,7 @@ if __name__ == "__main__":
         divot_radius=0.5,
         tolerance=0.3,
     )
-    show(sb, reset_camera=Camera.KEEP)
+
+    show(
+        sb,
+    )

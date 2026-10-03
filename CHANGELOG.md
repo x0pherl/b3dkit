@@ -7,6 +7,13 @@ ship in minor releases.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-03
+
+### Changed
+
+- **`slide_box` sliding edges are filleted** by `wall_thickness * 0.025` on
+  both the slot and the lid.
+
 ## [0.5.1] - 2026-10-01
 
 ### Changed
@@ -158,7 +165,8 @@ the Python 3.11 floor.
 See the git history. b3dkit began as `fb-library`; the rename accompanied a
 rewrite that reworked names and usage to feel closer to native build123d.
 
-[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.2
 [0.5.1]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.1
 [0.5.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.0
 [0.4.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.4.0
