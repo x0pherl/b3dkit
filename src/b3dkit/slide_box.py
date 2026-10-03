@@ -328,7 +328,7 @@ def slide_box(
 
 
 if __name__ == "__main__":
-    from ocp_vscode import Camera, show
+    from ocp_vscode import show
 
     with BuildPart() as base_box:
         Box(20, 44, 14, align=(Align.CENTER, Align.CENTER, Align.MIN))

@@ -181,5 +181,5 @@ class TestSlideBoxFit:
         )
         bumps = sorted((s.center().X, s.center().Y) for s in (lid - plain_lid).solids())
         assert len(detents) == len(bumps) == 2
-        for detent, bump in zip(detents, bumps):
+        for detent, bump in zip(detents, bumps, strict=True):
             assert detent == pytest.approx(bump, abs=1e-4)
