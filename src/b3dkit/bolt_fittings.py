@@ -92,7 +92,7 @@ class TeardropBoltCutSinkhole(BasePartObject):
                     amount=extension_distance,
                 )
             anti_chamfer(
-                sinkhole.part.faces().sort_by(Axis.Z)[-1],
+                sinkhole.faces().sort_by(Axis.Z)[-1],
                 chamfer_radius,
             )
         super().__init__(
@@ -205,7 +205,7 @@ class SquareNutSinkhole(BasePartObject):
                     nut_length,
                     align=(Align.CENTER, Align.MIN, Align.CENTER),
                 )
-                extrude(nut.part.faces().sort_by(Axis.Z)[-1], amount=nut_depth)
+                extrude(nut.faces().sort_by(Axis.Z)[-1], amount=nut_depth)
             if bolt_extension > 0:
                 with BuildPart(Location((0, bolt_depth + nut_height, 0))) as nut:
                     TeardropCylinder(

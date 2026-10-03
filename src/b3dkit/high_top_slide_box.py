@@ -83,10 +83,11 @@ def _slide_top_rail_cut(
         -(part_depth - wall_thickness) / 2,
     )
 
-    with BuildPart(
-        Location((0, wall_thickness / 2, 0)),
-        mode=Mode.SUBTRACT,
-    ) as rail_cut:
+    # every child below is a nested builder or sketch, so this builder takes no
+    # location of its own: build123d 0.11 ignores a parent's location in nested
+    # builders and 0.12 composes it, so only an unlocated parent means the same
+    # thing to both
+    with BuildPart() as rail_cut:
         with BuildSketch(Location((0, wall_thickness / 2))):
             with BuildLine():
 
@@ -224,13 +225,15 @@ def _high_top_slide_box_top(
             )
         ):
             add(base_part)
-            with BuildPart(mode=Mode.INTERSECT):
-                Box(
-                    part_max_dimension,
-                    part_max_dimension,
-                    part_max_dimension,
-                    align=(Align.CENTER, Align.CENTER, Align.MIN),
-                )
+        # outside the located builder above, so it sits at z=0 on every
+        # build123d version
+        Box(
+            part_max_dimension,
+            part_max_dimension,
+            part_max_dimension,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+            mode=Mode.INTERSECT,
+        )
         with BuildPart(
             Location((0, wall_thickness / 2, rail_height)),
             mode=Mode.SUBTRACT,
@@ -389,6 +392,19 @@ def high_top_slide_box_base(
     part_depth = base_part.bounding_box().size.Y
     part_height = base_part.bounding_box().size.Z
 
+    # built before any builder opens: inside one it would be a nested builder,
+    # and build123d 0.12 changed where nested builders place their geometry
+    top_cut = _high_top_slide_box_top(
+        base_part,
+        top_height,
+        rail_height,
+        wall_thickness,
+        rail_angle,
+        divot_radius,
+        tolerance,
+        cut_template=True,
+    )
+
     with BuildPart() as boxbottom:
         add(base_part)
         with BuildPart(
@@ -423,18 +439,7 @@ def high_top_slide_box_base(
             ),
             mode=Mode.SUBTRACT,
         ):
-            add(
-                _high_top_slide_box_top(
-                    base_part,
-                    top_height,
-                    rail_height,
-                    wall_thickness,
-                    rail_angle,
-                    divot_radius,
-                    tolerance,
-                    cut_template=True,
-                )
-            )
+            add(top_cut)
         with BuildPart(
             Location(
                 (

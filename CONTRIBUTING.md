@@ -84,6 +84,11 @@ release, raise the floor in `pyproject.toml` in the same change. b3dkit 0.1.5
 shipped code that could not run against its own advertised minimum, which is
 what that CI job exists to prevent.
 
+Inside a `BuildPart` that has a location, do not open another builder or
+sketch, and give operations geometry from the builder (`builder.faces()`), not
+from `builder.part`. build123d 0.11 and 0.12+ place geometry differently in
+both cases.
+
 Do not add an upper bound. Caps propagate into every downstream resolution and
 convert a runtime failure into an install failure for everyone.
 

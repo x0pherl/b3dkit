@@ -107,7 +107,7 @@ class TestPartObjectContract:
         against a shape it is given, so rotation and align cannot mean anything
         for it -- both were measurably inert when it still offered them.
         """
-        params = list(inspect.signature(getattr(b3dkit, name)).parameters)
+        params = list(inspect.signature(getattr(b3dkit, name).__init__).parameters)
         if name in POSITIONED_AGAINST_INPUT:
             assert params[-1] == "mode", f"{name} should still end with mode"
             assert (

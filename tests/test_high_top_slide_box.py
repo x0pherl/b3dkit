@@ -90,6 +90,7 @@ class TestHighTopSlideBox:
         assert isinstance(lid, Part)
         assert_single_solid(lid, "lid")
         assert lid.label == "box top"
+        assert lid.volume == pytest.approx(1664.0654, rel=1e-4)
 
     def test_high_top_slide_box_lid_with_params(self, small_base_part):
         """Test high_top_slide_box_lid with various parameters."""

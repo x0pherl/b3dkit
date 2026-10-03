@@ -31,7 +31,7 @@ class TestTwistSnap:
         """
         import inspect
 
-        params = inspect.signature(TwistSnapConnector).parameters
+        params = inspect.signature(TwistSnapConnector.__init__).parameters
         assert "tolerance" not in params
         assert "wall_width" not in params
 

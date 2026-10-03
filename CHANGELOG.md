@@ -7,6 +7,16 @@ ship in minor releases.
 
 ## [Unreleased]
 
+### Fixed
+
+- **build123d 0.12 and 0.13 support.** `TeardropBoltCutSinkhole`,
+  `BoltCutSinkhole`, `SquareNutSinkhole`, `TwistSnapSocket` and the
+  `high_top_slide_box` parts built the wrong geometry on build123d 0.12+, which
+  places geometry inside located builders differently. Every public object now
+  builds identically on 0.11, 0.12 and 0.13; 0.11 geometry is unchanged.
+- **`Teardrop`'s `rotation` is a float**, defaulting to `0`. The old `(0, 0)`
+  default raised `TypeError` on build123d 0.12+.
+
 ## [0.5.2] - 2026-10-03
 
 ### Changed

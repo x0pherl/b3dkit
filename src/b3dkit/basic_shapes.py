@@ -313,7 +313,7 @@ class Teardrop(BaseSketchObject):
         self,
         radius: float,
         peak_distance: float,
-        rotation: RotationLike = (0, 0),
+        rotation: float = 0,
         align: None | Align | tuple[Align, Align] = None,
         mode: Mode = Mode.ADD,
     ):

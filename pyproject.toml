@@ -72,6 +72,8 @@ filterwarnings = [
     "ignore::DeprecationWarning:pyparsing.*",
     "default::DeprecationWarning:build123d.*",
     "default::PendingDeprecationWarning:build123d.*",
+    # build123d 0.13 renamed add() to insert(); 0.11 has no insert().
+    "ignore:add\\(\\) is deprecated:DeprecationWarning",
 ]
 
 [tool.black]

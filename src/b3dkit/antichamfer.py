@@ -11,7 +11,6 @@ from build123d import (
     Face,
     Iterable,
     Location,
-    Mode,
     Part,
     add,
     extrude,
@@ -78,18 +77,19 @@ def anti_chamfer(
     if length == 0 or length2 == 0:
         return target
 
+    taper = -degrees(atan(length2 / length))
+    if context is not None:
+        # extrude straight into the caller's builder: a builder opened here would
+        # nest inside it, and build123d 0.12 changed where nested builders place
+        # their geometry
+        for f in faces_list:
+            extrude(f.offset(-length), amount=length, taper=taper)
+        return Part(Compound([context.part]).wrapped)
+
     with BuildPart() as new_part:
         add(target)
         for f in faces_list:
-            extrude(
-                f.offset(-length),
-                amount=length,
-                taper=-degrees(atan(length2 / length)),
-            )
-    if context is not None:
-        context._add_to_context(
-            Part(Compound([new_part.part]).wrapped), mode=Mode.REPLACE
-        )
+            extrude(f.offset(-length), amount=length, taper=taper)
     return Part(Compound([new_part.part]).wrapped)
 
 

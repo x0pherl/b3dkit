@@ -204,8 +204,11 @@ class TwistSnapSocket(BasePartObject):
                     align=(Align.CENTER, Align.CENTER, Align.MIN),
                     mode=Mode.SUBTRACT,
                 )
+            # snap_socket.part, not snap_socket.edges(): build123d 0.12 reports a
+            # located builder's edges in its local frame, and this path is used
+            # outside it
             trace_path = (
-                snap_socket.edges()
+                snap_socket.part.edges()
                 .filter_by(GeomType.CIRCLE)
                 .sort_by(Axis.Z, reverse=True)
                 .sort_by(SortBy.RADIUS, reverse=True)[-1]
