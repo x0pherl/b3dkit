@@ -29,7 +29,7 @@ class TestSlideBox:
         assert (box.label, lid.label) == ("box", "lid")
         assert len(box.solids()) == 1
         assert len(lid.solids()) == 1
-        assert box.volume == pytest.approx(4604.7926, rel=1e-4)
+        assert box.volume == pytest.approx(4439.0809, rel=1e-4)
         assert lid.volume == pytest.approx(1344.8752, rel=1e-4)
         # the lid slides inside the box, so it must be narrower
         assert lid.bounding_box().size.X < box.bounding_box().size.X
@@ -146,7 +146,7 @@ class TestSlideBoxFit:
 
         # the slot floor is a ledge: just above it the opening reaches out to
         # the rail, just below it only to the inner wall of the box
-        cavity_wall = 10 - self.WALL - tolerance
+        cavity_wall = 10 - self.WALL
         assert first_material(floor - 0.01) == pytest.approx(cavity_wall, abs=1e-4)
         assert first_material(floor + 0.01) > cavity_wall + 0.5
 

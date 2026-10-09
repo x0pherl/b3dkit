@@ -93,7 +93,6 @@ def _slider_template(
     sketch: Sketch,
     wall_thickness: float = 2,
     tolerance: float = 0.2,
-    top_offset: float = 0,
     x_straighten_distance: float = 0,
     divot_radius: float = 0,
     cut_template: bool = True,
@@ -203,7 +202,6 @@ def slide_lid(
         cross_section,
         wall_thickness,
         tolerance=tolerance,
-        top_offset=top_offset,
         x_straighten_distance=x_straighten_distance,
         divot_radius=divot_radius,
         cut_template=False,
@@ -279,29 +277,27 @@ def slide_box(
     returns a Compound labelled "slide box" with two children, "box" and "lid"
     """
 
-    cross_section = section(
-        obj=part, section_by=Plane.XY.offset(part.bounding_box().max.Z - top_offset)
-    )
+    top = part.bounding_box().max.Z
+    cross_section = section(obj=part, section_by=Plane.XY.offset(top - top_offset))
     lid_cut_template = _slider_template(
         cross_section,
         wall_thickness,
         tolerance=tolerance,
-        top_offset=top_offset,
         x_straighten_distance=x_straighten_distance,
         divot_radius=divot_radius,
     )
 
-    extrusion_height = part.bounding_box().max.Z - wall_thickness
+    extrusion_height = top - wall_thickness
     with BuildPart() as box_part:
         add(part)
-        extrude(
+        # the cavity follows the outline below any top features, raised to the
+        # top of the part
+        with BuildSketch(Plane.XY.offset(top)):
             offset(
-                box_part.faces().sort_by(Axis.Z)[-1],
-                amount=-abs(tolerance) - abs(wall_thickness - top_offset),
-            ),
-            amount=-extrusion_height,
-            mode=Mode.SUBTRACT,
-        )
+                cross_section.moved(Location((0, 0, -(top - top_offset)))),
+                amount=-abs(wall_thickness),
+            )
+        extrude(amount=-extrusion_height, mode=Mode.SUBTRACT)
         add(
             lid_cut_template.move(Location((0, 0, extrusion_height + wall_thickness))),
             mode=Mode.SUBTRACT,

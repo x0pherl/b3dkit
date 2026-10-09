@@ -7,6 +7,22 @@ ship in minor releases.
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-10-08
+
+### Changed
+
+- **`slide_box` cavity walls are `wall_thickness` thick.** The cavity follows
+  the part's outline at `top_offset` below the top, so lettering or other top
+  features no longer shape it, and `top_offset` and `tolerance` no longer thin
+  the walls.
+
+## [0.5.2] - 2026-10-03
+
+### Changed
+
+- **`slide_box` sliding edges are filleted** by `wall_thickness * 0.025` on
+  both the slot and the lid.
+
 ### Fixed
 
 - **build123d 0.12 and 0.13 support.** `TeardropBoltCutSinkhole`,
@@ -16,13 +32,6 @@ ship in minor releases.
   builds identically on 0.11, 0.12 and 0.13; 0.11 geometry is unchanged.
 - **`Teardrop`'s `rotation` is a float**, defaulting to `0`. The old `(0, 0)`
   default raised `TypeError` on build123d 0.12+.
-
-## [0.5.2] - 2026-10-03
-
-### Changed
-
-- **`slide_box` sliding edges are filleted** by `wall_thickness * 0.025` on
-  both the slot and the lid.
 
 ## [0.5.1] - 2026-10-01
 
@@ -175,7 +184,8 @@ the Python 3.11 floor.
 See the git history. b3dkit began as `fb-library`; the rename accompanied a
 rewrite that reworked names and usage to feel closer to native build123d.
 
-[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/x0pherl/b3dkit/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.3
 [0.5.2]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.2
 [0.5.1]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.1
 [0.5.0]: https://github.com/x0pherl/b3dkit/releases/tag/v0.5.0
